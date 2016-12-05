@@ -12,7 +12,9 @@ namespace Ipa.Model
     using System;
     using System.Collections.Generic;
 
-    public class PortfolioModel
+    using CsvHelper.Configuration;
+
+    public class PortfolioModel : CsvClassMap<PortfolioModel>
     {
         #region Constructors and Destructors
 

@@ -121,7 +121,7 @@ namespace Ipa.Model
             // Sort such sell trades executed first
             // tradesList = tradesList.OrderBy(o => o.Amount).ToList();
 
-            // Check that trade balance remains positive
+            // TODO: Check that trade balance remains positive
 
             return tradesList;
         }

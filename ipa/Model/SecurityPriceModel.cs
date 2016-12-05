@@ -6,13 +6,29 @@
 //   Defines the SecurityPriceModel type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     using System;
 
-    public class SecurityPriceModel
+    using CsvHelper.Configuration;
+
+    public class SecurityPriceModel : CsvClassMap<SecurityPriceModel>
     {
+        #region Constructors and Destructors
+
+        public SecurityPriceModel()
+        {
+            this.Map(p => p.TransactionDate).Name("Date");
+            this.Map(p => p.OpenPrice).Name("Open");
+            this.Map(p => p.HighPrice).Name("High");
+            this.Map(p => p.LowPrice).Name("Low");
+            this.Map(p => p.ClosePrice).Name("Close");
+            this.Map(p => p.Volume).Name("Volume");
+            this.Map(p => p.AdjustedClose).Name("Adj Close");
+        }
+
+        #endregion
+
         #region Public Properties
 
         public decimal AdjustedClose { get; set; }

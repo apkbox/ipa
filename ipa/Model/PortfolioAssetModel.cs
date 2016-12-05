@@ -6,11 +6,20 @@
 //   Defines the PortfolioAssetModel type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
-    public class PortfolioAssetModel
+    using CsvHelper.Configuration;
+
+    public class PortfolioAssetModel : CsvClassMap<PortfolioModel>
     {
+        #region Constructors and Destructors
+
+        public PortfolioAssetModel()
+        {
+        }
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>

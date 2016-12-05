@@ -71,6 +71,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Reader\DataReader.cs" />
     <Compile Include="Model\IpaModel.cs" />
     <Compile Include="Model\IRebalancingStrategy.cs" />
     <Compile Include="Model\MixedRebalancingStrategy.cs" />
@@ -78,7 +79,12 @@
     <Compile Include="Model\ModelPortfolioModel.cs" />
     <Compile Include="Model\PortfolioAssetModel.cs" />
     <Compile Include="Model\PortfolioModel.cs" />
-    <Compile Include="Model\ScenarioModel.cs" />
+    <Compile Include="Model\Reader\ModelPortfolioAssetRecord.cs" />
+    <Compile Include="Model\Reader\ModelPortfolioRecord.cs" />
+    <Compile Include="Model\Reader\PortfolioAssetRecord.cs" />
+    <Compile Include="Model\Reader\PortfolioRecord.cs" />
+    <Compile Include="Model\Reader\SecurityRecord.cs" />
+    <Compile Include="Model\Reader\SimulationParametersRecord.cs" />
     <Compile Include="Model\SecurityDividendModel.cs" />
     <Compile Include="Model\SecurityModel.cs" />
     <Compile Include="Model\SecurityPriceModel.cs" />
@@ -102,6 +108,40 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="config\ModelPortfolios.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\MY_TFSA_Holdings.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\MY_TFSA_ModelPortfolioAssets.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\Portfolios.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\RBC_TFSA_Holdings.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\RBC_TFSA_ModelPortfolioAssets.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\Securities.csv" />
+    <None Include="config\SimulationParameters.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\VSB_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\VSB_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\XUS_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\XUS_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

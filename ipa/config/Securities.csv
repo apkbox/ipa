@@ -1,0 +1,5 @@
+﻿Ticker,Name,PartialShares,FixedPrice,BuyFee,SellFee
+$CAD,"Canadian Dollar",0,0.01,0,0
+$USD,"U.S. Dollar",0,0.01,0,0
+XUS,"iShares Core S&P 500 Index",0,,,
+VSB,"Vanguard Canadian Short-Term Bond Index ETF",0,,,

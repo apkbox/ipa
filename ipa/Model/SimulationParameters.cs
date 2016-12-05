@@ -6,25 +6,14 @@
 //   Defines the SimulationParameters type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     using System;
 
+    using Ipa.Model.Reader;
+
     public class SimulationParameters
     {
-        #region Constructors and Destructors
-
-        public SimulationParameters()
-        {
-            this.StopDate = DateTime.Today;
-            this.InceptionDate = this.StopDate.AddYears(-1);
-            this.TransactionFee = 9.95m;
-            this.ForceInitialRebalancing = true;
-        }
-
-        #endregion
-
         #region Public Properties
 
         /// <summary>
@@ -33,6 +22,8 @@ namespace Ipa.Model
         public bool ForceInitialRebalancing { get; set; }
 
         public DateTime InceptionDate { get; set; }
+
+        public PortfolioModel InitialPortfolio { get; set; }
 
         /// <summary>
         /// Gets or sets portfolio model to follow.
@@ -49,6 +40,17 @@ namespace Ipa.Model
         /// </summary>
         public decimal TransactionFee { get; set; }
 
+        #endregion
+
+        #region Public Methods and Operators
+
+        public static SimulationParameters FromRecord(
+            SimulationParametersRecord simulationParametersRecord, 
+            ModelPortfolioRecord mpr, 
+            PortfolioRecord pr)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

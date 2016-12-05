@@ -9,8 +9,14 @@
 
 namespace Ipa.Model
 {
+    using Ipa.Model.Reader;
+
     public class ModelPortfolioAsset
     {
+        public ModelPortfolioAsset()
+        {
+        }
+
         #region Public Properties
 
         public decimal Allocation { get; set; }
@@ -18,5 +24,14 @@ namespace Ipa.Model
         public SecurityModel Security { get; set; }
 
         #endregion
+
+        public static ModelPortfolioAsset FromRecord(ModelPortfolioAssetRecord record)
+        {
+            return new ModelPortfolioAsset
+                       {
+                           Allocation = record.Allocation,
+                           Security = record.Ticker
+                       };
+        }
     }
 }

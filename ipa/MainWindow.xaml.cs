@@ -9,7 +9,10 @@
 
 namespace Ipa
 {
+    using System;
     using System.Windows;
+
+    using Ipa.Model;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml.
@@ -24,5 +27,23 @@ namespace Ipa
         }
 
         #endregion
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var reader = new DataReader();
+            var simParams = reader.ReadSimulationParameters();
+            var securities = reader.ReadSecurities();
+            /*
+            SimulationParameters simParams = new SimulationParameters();
+            simParams.ForceInitialRebalancing = true;
+            simParams.InceptionDate = new DateTime(2016, 1, 1);
+            simParams.TransactionFee = 9.95m;
+            simParams.ModelPortfolio = new ModelPortfolioModel()
+                                           {
+                                               Name = "Test",
+                                               Assets
+                                           }
+             * */
+        }
     }
 }
