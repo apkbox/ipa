@@ -6,11 +6,10 @@
 //   Defines the SimulationParameters type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
     using System;
-
-    using Ipa.Model.Reader;
 
     public class SimulationParameters
     {
@@ -39,18 +38,6 @@ namespace Ipa.Model
         /// Gets or sets default transaction fee.
         /// </summary>
         public decimal TransactionFee { get; set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
-        public static SimulationParameters FromRecord(
-            SimulationParametersRecord simulationParametersRecord, 
-            ModelPortfolioRecord mpr, 
-            PortfolioRecord pr)
-        {
-            throw new NotImplementedException();
-        }
 
         #endregion
     }

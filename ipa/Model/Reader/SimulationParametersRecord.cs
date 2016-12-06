@@ -6,13 +6,14 @@
 //   Defines the SimulationParametersRecord type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model.Reader
 {
     using System;
 
     using CsvHelper.Configuration;
 
-    public class SimulationParametersRecord : CsvClassMap<SimulationParametersRecord>
+    internal class SimulationParametersRecord : CsvClassMap<SimulationParametersRecord>
     {
         #region Constructors and Destructors
 
@@ -21,8 +22,8 @@ namespace Ipa.Model.Reader
             this.Map(p => p.ModelPortfolioId);
             this.Map(p => p.PortfolioId);
             this.Map(p => p.InceptionDate);
-            this.Map(p => p.StopDate);
-            this.Map(p => p.TransacionFee);
+            this.Map(p => p.StopDate).Default(null);
+            this.Map(p => p.TransactionFee);
             this.Map(p => p.ForceInitialRebalancing);
         }
 
@@ -38,9 +39,9 @@ namespace Ipa.Model.Reader
 
         public string PortfolioId { get; set; }
 
-        public DateTime StopDate { get; set; }
+        public DateTime? StopDate { get; set; }
 
-        public decimal TransacionFee { get; set; }
+        public decimal TransactionFee { get; set; }
 
         #endregion
     }

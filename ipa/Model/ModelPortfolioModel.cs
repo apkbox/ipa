@@ -34,22 +34,9 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public static ModelPortfolioModel FromRecord(ModelPortfolioRecord record)
-        {
-            var m = new ModelPortfolioModel();
-            m.Name = record.Name;
-
-            foreach (var r in record.Assets)
-            {
-                m.Assets.Add(ModelPortfolioAsset.FromRecord(r.Value));
-            }
-
-            return m;
-        }
-
         public ModelPortfolioAsset GetAsset(string ticker)
         {
-            return (from n in this.Assets where n.Security.Ticker == ticker select n).FirstOrDefault();
+            return this.Assets.FirstOrDefault(o => o.Security.Ticker == ticker);
         }
 
         #endregion

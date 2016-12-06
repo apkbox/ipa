@@ -6,28 +6,19 @@
 //   Defines the SecurityModel type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    using CsvHelper.Configuration;
-
-    public class SecurityModel : CsvClassMap<SecurityModel>
+    public class SecurityModel
     {
         #region Constructors and Destructors
 
         public SecurityModel()
         {
-            this.Map(p => p.Ticker).Name("Ticker");
-            this.Map(p => p.Name).Name("Name");
-            this.Map(p => p.AllowsPartialShares).Name("PartialShares");
-            this.Map(p => p.FixedPrice).Name("FixedPrice").Default(null);
-            this.Map(p => p.BuyTransactionFee).Name("BuyFee").Default(null);
-            this.Map(p => p.SellTransactionFee).Name("SellFee").Default(null);
-
-            this.AllowsPartialShares = false;
             this.PriceHistory = new List<SecurityPriceModel>();
             this.DividendHistory = new List<SecurityDividendModel>();
         }
@@ -42,6 +33,9 @@ namespace Ipa.Model
 
         public IList<SecurityDividendModel> DividendHistory { get; private set; }
 
+        /// <summary>
+        /// Gets or sets fixed price.
+        /// </summary>
         public decimal? FixedPrice { get; set; }
 
         public string Name { get; set; }
@@ -75,10 +69,11 @@ namespace Ipa.Model
 
         public SecurityPriceModel GetPriceEntry(DateTime date)
         {
-            return this.FixedPriceOverride(date) ?? (from entry in this.PriceHistory
-                                                     orderby entry.TransactionDate ascending
-                                                     where entry.TransactionDate >= date
-                                                     select entry).FirstOrDefault();
+            return this.FixedPriceOverride(date)
+                   ?? (from entry in this.PriceHistory
+                       orderby entry.TransactionDate ascending
+                       where entry.TransactionDate >= date
+                       select entry).FirstOrDefault();
         }
 
         #endregion
@@ -94,12 +89,12 @@ namespace Ipa.Model
 
             return new SecurityPriceModel
                        {
-                           TransactionDate = date, 
-                           OpenPrice = (decimal)this.FixedPrice, 
-                           LowPrice = (decimal)this.FixedPrice, 
-                           HighPrice = (decimal)this.FixedPrice, 
-                           ClosePrice = (decimal)this.FixedPrice, 
-                           AdjustedClose = (decimal)this.FixedPrice, 
+                           TransactionDate = date,
+                           OpenPrice = (decimal)this.FixedPrice,
+                           LowPrice = (decimal)this.FixedPrice,
+                           HighPrice = (decimal)this.FixedPrice,
+                           ClosePrice = (decimal)this.FixedPrice,
+                           AdjustedClose = (decimal)this.FixedPrice,
                            Volume = 0
                        };
         }

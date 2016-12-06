@@ -3,6 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Click="Button_Click">Simulate</Button>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="29*"/>
+        </Grid.RowDefinitions>
+        <Button HorizontalAlignment="Left" VerticalAlignment="Center" 
+                Margin="5"
+                Click="Button_Click" Grid.Row="0">Simulate</Button>
+        <ListBox Grid.Row="1" ItemsSource="{Binding SimParams}" Margin="5"/>
     </Grid>
 </Window>

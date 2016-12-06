@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 // <copyright file="SimulationState.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
@@ -9,22 +9,26 @@
 
 namespace Ipa.Model
 {
-    using System;
-
-    public class SimulationState
+    public enum SimulationState
     {
-        #region Fields
+        /// <summary>
+        /// Rebalancing required.
+        /// </summary>
+        /// <remarks>
+        /// The app can choose to rebalance by creating a trade orders list,
+        /// then trades will be executed on next cycle.
+        /// Alternatively a model portfolio can be replaced or adjusted.
+        /// </remarks>
+        Rebalancing,
 
-        #endregion
+        /// <summary>
+        /// Simulation executed a day and can continue.
+        /// </summary>
+        Continue,
 
-        #region Public Properties
-
-        public DateTime CurrentDate { get; set; }
-
-        public DateTime LastRebalancing { get; set; }
-
-        public PortfolioModel Portfolio { get; set; }
-
-        #endregion
+        /// <summary>
+        /// Simulation stopped.
+        /// </summary>
+        Stopped
     }
 }

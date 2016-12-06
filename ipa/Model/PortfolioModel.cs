@@ -11,10 +11,9 @@ namespace Ipa.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
-    using CsvHelper.Configuration;
-
-    public class PortfolioModel : CsvClassMap<PortfolioModel>
+    public class PortfolioModel
     {
         #region Constructors and Destructors
 
@@ -24,11 +23,21 @@ namespace Ipa.Model
             this.RebalancingStrategy = new MixedRebalancingStrategy();
         }
 
+        public PortfolioModel(PortfolioModel other)
+        {
+            this.Holdings = other.Holdings.Select(o => new PortfolioAssetModel(o)).ToList();
+            this.LastRebalancingDate = other.LastRebalancingDate;
+            this.MarketValue = other.MarketValue;
+            this.Name = other.Name;
+            this.RebalancingStrategy = other.RebalancingStrategy;
+            this.TransactionFee = other.TransactionFee;
+        }
+
         #endregion
 
         #region Public Properties
 
-        public List<PortfolioAssetModel> Holdings { get; private set; }
+        public IList<PortfolioAssetModel> Holdings { get; private set; }
 
         public DateTime LastRebalancingDate { get; set; }
 
@@ -36,6 +45,8 @@ namespace Ipa.Model
         /// Gets or sets current portfolio market value.
         /// </summary>
         public decimal MarketValue { get; set; }
+
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets rebalancing strategy.
@@ -46,6 +57,15 @@ namespace Ipa.Model
         /// Gets or sets default transaction fee for the portfolio.
         /// </summary>
         public decimal TransactionFee { get; set; }
+
+        #endregion
+
+        #region Public Methods and Operators
+
+        public PortfolioAssetModel GetCashPosition()
+        {
+            return this.Holdings.FirstOrDefault(o => o.Security.Ticker == "$CAD");
+        }
 
         #endregion
     }

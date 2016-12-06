@@ -6,16 +6,27 @@
 //   Defines the PortfolioAssetModel type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
-    using CsvHelper.Configuration;
-
-    public class PortfolioAssetModel : CsvClassMap<PortfolioModel>
+    public class PortfolioAssetModel
     {
         #region Constructors and Destructors
 
-        public PortfolioAssetModel()
+        public PortfolioAssetModel(SecurityModel security)
         {
+            this.Security = security;
+        }
+
+        public PortfolioAssetModel(PortfolioAssetModel other)
+        {
+            this.BookCost = other.BookCost;
+            this.DividendsPaid = other.DividendsPaid;
+            this.LastPrice = other.LastPrice;
+            this.ManagementCost = other.ManagementCost;
+            this.MarketValue = other.MarketValue;
+            this.Security = other.Security;
+            this.Units = other.Units;
         }
 
         #endregion
@@ -26,6 +37,14 @@ namespace Ipa.Model
         /// Gets or sets book cost of the asset.
         /// </summary>
         public decimal BookCost { get; set; }
+
+        public decimal BookPrice
+        {
+            get
+            {
+                return this.BookCost / this.Units;
+            }
+        }
 
         /// <summary>
         /// Gets or sets total dividends paid for this asset.

@@ -15,6 +15,17 @@ namespace Ipa.Model
 
     public class MixedRebalancingStrategy : IRebalancingStrategy
     {
+        #region Constructors and Destructors
+
+        public MixedRebalancingStrategy()
+        {
+            this.Frequency = TimeSpan.FromDays(91);
+            this.Threshold = 0.05m; // 5%
+            this.TradingExpenseThreshold = 0.1m; // 10%
+        }
+
+        #endregion
+
         #region Public Properties
 
         public TimeSpan Frequency { get; set; }
@@ -36,18 +47,34 @@ namespace Ipa.Model
 
         public bool Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio)
         {
-            if (elapsed >= this.Frequency)
+            if (elapsed < this.Frequency)
             {
-                foreach (var asset in portfolio.Holdings)
-                {
-                    var currentAllocation = asset.MarketValue / portfolio.MarketValue;
-                    var targetAllocation = model.GetAsset(asset.Security.Ticker).Allocation;
-                    var drift = Math.Abs(targetAllocation - currentAllocation);
+                return false;
+            }
 
-                    if (drift > this.Threshold)
+            foreach (var asset in portfolio.Holdings)
+            {
+                var currentAllocation = asset.MarketValue / portfolio.MarketValue;
+
+                var modelAsset = model.GetAsset(asset.Security.Ticker);
+                if (modelAsset == null)
+                {
+                    // Portfolio contains significant amount of asset that is not in the model,
+                    // so the portfolio needs to be rebalanced.
+                    if (currentAllocation > 0)
                     {
                         return true;
                     }
+
+                    continue;
+                }
+
+                var targetAllocation = modelAsset.Allocation;
+                var drift = Math.Abs(targetAllocation - currentAllocation);
+
+                if (drift > this.Threshold)
+                {
+                    return true;
                 }
             }
 
@@ -64,13 +91,26 @@ namespace Ipa.Model
             // the next opportunity to trade for rebalancing lies forward.
             // On the order side, the rebalancing should generate trades list only that will be executed
             // by simulation, which then correct things.
-            // Note that there could be no more checks and rebalancing forward until trades list
-            // is completed.
             // TODO: Do we need to make multiple iterations? First iteration excludes all assets that do not need
             // rebalancing and adjusts total amount, then the second iteration does the actual job of preparing
             // trade orders. This will avoid situation when asset has excess, but cannot be used because it
             // is below rebalancing thereshold.
-            foreach (var asset in portfolio.Holdings)
+            // Similar issue is when over the threshold security is sold, but it is determined that other securities are
+            // below threshold, the one end up with excess cash, and still unbalanced portfolio as this cash
+            // shifts the balance again.
+            {
+            }
+
+            // Make combined list of current holdings and model assets.
+            var assets = model.Assets.Select(o => new PortfolioAssetModel(o.Security))
+                .ToDictionary(o => o.Security.Ticker);
+            var holdings = portfolio.Holdings.ToDictionary(o => o.Security.Ticker);
+            foreach (var h in holdings)
+            {
+                assets[h.Key] = h.Value;
+            }
+
+            foreach (var asset in assets.Values)
             {
                 var targetAllocation = model.GetAsset(asset.Security.Ticker).Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
@@ -93,7 +133,7 @@ namespace Ipa.Model
                 if (excess > 0)
                 {
                     var fee = asset.Security.SellTransactionFee ?? portfolio.TransactionFee;
-                    if (fee / excess < this.TradingExpenseThreshold)
+                    if (fee / excess <= this.TradingExpenseThreshold)
                     {
                         excess -= fee;
                     }
@@ -118,11 +158,7 @@ namespace Ipa.Model
                 }
             }
 
-            // Sort such sell trades executed first
-            // tradesList = tradesList.OrderBy(o => o.Amount).ToList();
-
             // TODO: Check that trade balance remains positive
-
             return tradesList;
         }
 

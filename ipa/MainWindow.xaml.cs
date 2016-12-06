@@ -9,41 +9,85 @@
 
 namespace Ipa
 {
-    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Windows;
 
+    using Ipa.Annotations;
     using Ipa.Model;
+    using Ipa.Model.Reader;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml.
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        #region Fields
+
+        private IList<SimulationParameters> simParams;
+
+        #endregion
+
         #region Constructors and Destructors
 
         public MainWindow()
         {
+            this.DataContext = this;
             this.InitializeComponent();
         }
 
         #endregion
 
+        #region Public Events
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        #region Public Properties
+
+        public IList<SimulationParameters> SimParams
+        {
+            get
+            {
+                return this.simParams;
+            }
+
+            private set
+            {
+                if (value == this.simParams)
+                {
+                    return;
+                }
+
+                this.simParams = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var h = this.PropertyChanged;
+            if (h != null)
+            {
+                h(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var reader = new DataReader();
-            var simParams = reader.ReadSimulationParameters();
-            var securities = reader.ReadSecurities();
-            /*
-            SimulationParameters simParams = new SimulationParameters();
-            simParams.ForceInitialRebalancing = true;
-            simParams.InceptionDate = new DateTime(2016, 1, 1);
-            simParams.TransactionFee = 9.95m;
-            simParams.ModelPortfolio = new ModelPortfolioModel()
-                                           {
-                                               Name = "Test",
-                                               Assets
-                                           }
-             * */
+            this.SimParams = reader.BuildDb();
+            new Simulator().SimulatePortfolio(this.simParams.First());
         }
+
+        #endregion
     }
 }

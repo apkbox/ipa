@@ -12,7 +12,7 @@ namespace Ipa.Model.Reader
 
     using CsvHelper.Configuration;
 
-    public class PortfolioRecord : CsvClassMap<PortfolioRecord>
+    internal class PortfolioRecord : CsvClassMap<PortfolioRecord>
     {
         #region Constructors and Destructors
 

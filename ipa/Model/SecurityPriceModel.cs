@@ -37,7 +37,7 @@ namespace Ipa.Model
         {
             get
             {
-                return ((this.HighPrice - this.LowPrice) / 2) + this.LowPrice;
+                return Math.Round(((this.HighPrice - this.LowPrice) / 2) + this.LowPrice, 2);
             }
         }
 

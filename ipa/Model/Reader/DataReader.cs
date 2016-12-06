@@ -6,27 +6,28 @@
 //   Defines the DataReader type.
 // </summary>
 // --------------------------------------------------------------------------------
-namespace Ipa.Model
+
+namespace Ipa.Model.Reader
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
 
     using CsvHelper;
 
-    using Ipa.Model.Reader;
-
     public class DataReader
     {
-        #region Constants
-
-        private const string PriceHistoryFileName = @"config/{0}.csv";
-
-        private const string SecuritiesFileName = @"config/securities.csv";
-
-        #endregion
-
         #region Fields
+
+        private readonly Dictionary<string, ModelPortfolioModel> modelPortfolios =
+            new Dictionary<string, ModelPortfolioModel>();
+
+        private readonly IDictionary<string, PortfolioModel> portfolios = new Dictionary<string, PortfolioModel>();
+
+        private readonly IDictionary<string, SecurityModel> securities = new Dictionary<string, SecurityModel>();
+
+        private readonly IList<SimulationParameters> simulationParameterses = new List<SimulationParameters>();
 
         private IDictionary<string, ModelPortfolioRecord> modelPortfolioRecords;
 
@@ -36,53 +37,13 @@ namespace Ipa.Model
 
         private IList<SimulationParametersRecord> simParamsRecords;
 
-        private Dictionary<string, ModelPortfolioModel> modelPortfolios;
-
         #endregion
 
         #region Public Methods and Operators
 
-        public IList<SecurityModel> ReadSecurities()
-        {
-            List<SecurityModel> securities;
-
-            using (var reader = new StreamReader(SecuritiesFileName))
-            {
-                var csv = new CsvReader(reader);
-                csv.Configuration.RegisterClassMap<SecurityModel>();
-                securities = csv.GetRecords<SecurityModel>().ToList();
-            }
-
-            foreach (var security in securities)
-            {
-                if (security.FixedPrice != null)
-                {
-                    continue;
-                }
-
-                using (var reader = new StreamReader(string.Format(PriceHistoryFileName, security.Ticker)))
-                {
-                    var csv = new CsvReader(reader);
-                    csv.Configuration.RegisterClassMap<SecurityPriceModel>();
-                    foreach (var rec in csv.GetRecords<SecurityPriceModel>())
-                    {
-                        security.PriceHistory.Add(rec);
-                    }
-                }
-            }
-
-            return securities;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void BuildDb()
+        public IList<SimulationParameters> BuildDb()
         {
             this.ReadSimulationParameters();
-            this.ReadPortfolios();
-            this.ReadModelPortfolios();
 
             foreach (var spr in this.simParamsRecords)
             {
@@ -91,38 +52,116 @@ namespace Ipa.Model
                                  ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
                                  InitialPortfolio = this.GetPortfolio(spr.PortfolioId),
                                  InceptionDate = spr.InceptionDate,
-                                 StopDate = spr.StopDate,
-                                 TransactionFee = spr.TransacionFee,
+                                 StopDate = spr.StopDate ?? DateTime.Today,
+                                 TransactionFee = spr.TransactionFee,
                                  ForceInitialRebalancing = spr.ForceInitialRebalancing
                              };
+                this.simulationParameterses.Add(sp);
             }
+
+            return this.simulationParameterses;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private ModelPortfolioModel GetModelPortfolio(string modelPortfolioId)
+        {
+            if (this.modelPortfolioRecords == null)
+            {
+                this.ReadModelPortfolios();
+                foreach (var record in this.modelPortfolioRecords)
+                {
+                    var mpm = new ModelPortfolioModel { Name = record.Value.Name };
+                    foreach (var ar in record.Value.Assets)
+                    {
+                        var asset = new ModelPortfolioAsset
+                                        {
+                                            Security = this.GetSecurity(ar.Value.Ticker),
+                                            Allocation = ar.Value.Allocation
+                                        };
+                        mpm.Assets.Add(asset);
+                    }
+
+                    this.modelPortfolios.Add(record.Key, mpm);
+                }
+            }
+
+            return this.modelPortfolios[modelPortfolioId];
         }
 
         private PortfolioModel GetPortfolio(string portfolioId)
         {
-            
-        }
-
-        private ModelPortfolioModel GetModelPortfolio(string modelPortfolioId)
-        {
-            if (this.modelPortfolios == null)
+            if (this.portfolioRecords == null)
             {
-                this.modelPortfolios = new Dictionary<string, ModelPortfolioModel>();
+                this.ReadPortfolios();
+                foreach (var record in this.portfolioRecords)
+                {
+                    var pm = new PortfolioModel
+                                 {
+                                     Name = record.Value.Name,
+                                     TransactionFee = record.Value.TransactionFee
+                                 };
+                    foreach (var hr in record.Value.Holdings)
+                    {
+                        var asset = new PortfolioAssetModel(this.GetSecurity(hr.Value.Ticker))
+                                        {
+                                            Units = hr.Value.Units,
+                                            BookCost = hr.Value.BookCost
+                                        };
+                        pm.Holdings.Add(asset);
+                    }
+
+                    this.portfolios.Add(record.Key, pm);
+                }
             }
 
-            this.modelPortfolios.TryGetValue()
+            return this.portfolios[portfolioId];
         }
 
-        // public SimulationParameters ReadSimulationParameters()
-        // {
-        // using (var reader = new StreamReader(SimulationParametersFileName))
-        // {
-        // var csv = new CsvReader(reader);
-        // csv.Configuration.RegisterClassMap<SimulationParameters>();
-        // var parameters = csv.GetRecords<SimulationParameters>();
-        // return parameters.FirstOrDefault();
-        // }
-        // }
+        private SecurityModel GetSecurity(string ticker)
+        {
+            if (this.securityRecords == null)
+            {
+                this.ReadSecurities();
+                foreach (var record in this.securityRecords)
+                {
+                    var sm = new SecurityModel
+                                 {
+                                     Ticker = record.Value.Ticker,
+                                     Name = record.Value.Name,
+                                     AllowsPartialShares = record.Value.PartialShares,
+                                     FixedPrice = record.Value.FixedPrice,
+                                     BuyTransactionFee = record.Value.BuyFee,
+                                     SellTransactionFee = record.Value.SellFee
+                                 };
+
+                    if (record.Value.PriceHistory != null)
+                    {
+                        foreach (var spr in record.Value.PriceHistory)
+                        {
+                            var sp = new SecurityPriceModel
+                                         {
+                                             TransactionDate = spr.Date,
+                                             OpenPrice = spr.Open,
+                                             HighPrice = spr.High,
+                                             LowPrice = spr.Low,
+                                             ClosePrice = spr.Close,
+                                             Volume = spr.Volume,
+                                             AdjustedClose = spr.AdjClose,
+                                         };
+                            sm.PriceHistory.Add(sp);
+                        }
+                    }
+
+                    this.securities.Add(record.Key, sm);
+                }
+            }
+
+            return this.securities[ticker];
+        }
+
         private IDictionary<string, ModelPortfolioAssetRecord> ReadModelPortfolioAssets(string modelPortfolioId)
         {
             var fileName = string.Format("config/{0}_ModelPortfolioAssets.csv", modelPortfolioId);
@@ -140,7 +179,8 @@ namespace Ipa.Model
             {
                 var csv = new CsvReader(reader);
                 csv.Configuration.RegisterClassMap<ModelPortfolioRecord>();
-                this.modelPortfolioRecords = csv.GetRecords<ModelPortfolioRecord>().ToDictionary(o => o.ModelPortfolioId);
+                this.modelPortfolioRecords = csv.GetRecords<ModelPortfolioRecord>()
+                    .ToDictionary(o => o.ModelPortfolioId);
             }
 
             foreach (var r in this.modelPortfolioRecords)
@@ -172,6 +212,36 @@ namespace Ipa.Model
             foreach (var r in this.portfolioRecords)
             {
                 r.Value.Holdings = this.ReadPortfolioHoldings(r.Key);
+            }
+        }
+
+        private void ReadSecurities()
+        {
+            using (var reader = new StreamReader(string.Format("config/Securities.csv")))
+            {
+                var csv = new CsvReader(reader);
+                csv.Configuration.RegisterClassMap<SecurityRecord>();
+                this.securityRecords = csv.GetRecords<SecurityRecord>().ToDictionary(o => o.Ticker);
+            }
+
+            foreach (var r in this.securityRecords)
+            {
+                if (r.Value.FixedPrice != null)
+                {
+                    continue;
+                }
+
+                r.Value.PriceHistory = this.ReadSecurityPriceHistory(r.Key);
+            }
+        }
+
+        private IList<SecurityPriceRecord> ReadSecurityPriceHistory(string ticker)
+        {
+            using (var reader = new StreamReader(string.Format("config/{0}_SecurityPrices.csv", ticker)))
+            {
+                var csv = new CsvReader(reader);
+                csv.Configuration.RegisterClassMap<SecurityPriceRecord>();
+                return csv.GetRecords<SecurityPriceRecord>().OrderBy(o => o.Date).ToList();
             }
         }
 
