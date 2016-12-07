@@ -64,6 +64,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Reader\SecurityDividendRecord.cs" />
     <Compile Include="Model\RebalancingCheckResult.cs" />
     <Compile Include="ObjectDumper.cs" />
     <Compile Include="Model\Reader\DataReader.cs" />
@@ -148,6 +149,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\SimulationParameters.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\SMALL_Holdings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\VAB_SecurityDividends.csv">

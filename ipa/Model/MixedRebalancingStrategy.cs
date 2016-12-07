@@ -27,7 +27,7 @@ namespace Ipa.Model
         public MixedRebalancingStrategy()
         {
             this.Frequency = TimeSpan.FromDays(91);
-            this.Threshold = 0.05m; // 5%
+            this.Threshold = 0.01m; // 5%
             this.TradingExpenseThreshold = 0.1m; // 10%
         }
 

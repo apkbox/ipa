@@ -31,7 +31,7 @@ namespace Ipa
             logger.Info("Started");
             var reader = new DataReader();
             var simParams = reader.BuildDb();
-            new Simulator().SimulatePortfolio(simParams.First());
+            new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "SMALL"));
 
             logger.Info("Exiting");
             // Console.ReadKey();

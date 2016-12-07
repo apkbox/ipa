@@ -19,6 +19,7 @@ namespace Ipa.Model.Reader
 
         public SimulationParametersRecord()
         {
+            this.Map(p => p.SimulationId);
             this.Map(p => p.ModelPortfolioId);
             this.Map(p => p.PortfolioId);
             this.Map(p => p.InceptionDate);
@@ -38,6 +39,8 @@ namespace Ipa.Model.Reader
         public string ModelPortfolioId { get; set; }
 
         public string PortfolioId { get; set; }
+
+        public string SimulationId { get; set; }
 
         public DateTime? StopDate { get; set; }
 

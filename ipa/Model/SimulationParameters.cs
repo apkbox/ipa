@@ -29,6 +29,8 @@ namespace Ipa.Model
         /// </summary>
         public ModelPortfolioModel ModelPortfolio { get; set; }
 
+        public string SimulationId { get; set; }
+
         /// <summary>
         /// Gets or sets simulation stop date.
         /// </summary>

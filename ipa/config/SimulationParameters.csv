@@ -1,3 +1,4 @@
-﻿ModelPortfolioId,PortfolioId,InceptionDate,StopDate,TransactionFee,ForceInitialRebalancing
-"MY_TFSA","MY_TFSA",2015-01-01,,9.95,1
-"RBC_TFSA","RBC_TFSA","2015-01-01",,9.95,1
+﻿SimulationId,ModelPortfolioId,PortfolioId,InceptionDate,StopDate,TransactionFee,ForceInitialRebalancing
+"SMALL","MY_TFSA","SMALL",2016-03-01,,9.95,1
+"MY_TFSA","MY_TFSA","MY_TFSA",2015-01-01,,9.95,1
+"RBC_TFSA","RBC_TFSA","RBC_TFSA","2015-01-01",,9.95,1

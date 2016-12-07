@@ -6,6 +6,7 @@
 //   Defines the Simulator type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
     using System;
@@ -44,8 +45,8 @@ namespace Ipa.Model
         public void SimulatePortfolio(SimulationParameters parameters)
         {
             log.InfoFormat(
-                "Simulating portfolio '{0}' using model portfolio '{1}'", 
-                parameters.InitialPortfolio.Name, 
+                "Simulating portfolio '{0}' using model portfolio '{1}'",
+                parameters.InitialPortfolio.Name,
                 parameters.ModelPortfolio.Name);
 
             this.CurrentDate = parameters.InceptionDate;
@@ -57,7 +58,7 @@ namespace Ipa.Model
                 log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
                 this.UpdateHoldingsMarketValue();
                 this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                    parameters.ModelPortfolio, 
+                    parameters.ModelPortfolio,
                     this.Portfolio);
                 this.LastRebalancing = this.CurrentDate;
             }
@@ -89,7 +90,7 @@ namespace Ipa.Model
                     {
                         log.InfoFormat("Performing rebalancing on {0:D}", this.CurrentDate);
                         this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                            parameters.ModelPortfolio, 
+                            parameters.ModelPortfolio,
                             this.Portfolio);
                         this.LastRebalancing = this.CurrentDate;
                     }
@@ -100,6 +101,42 @@ namespace Ipa.Model
                     }
                 }
             }
+
+            log.Info(string.Empty);
+            log.Info("Ticker  Book Pr    Book Cost Mar Price    Mar Value     Dividends   MgmCost     Alloc");
+            log.Info("=====================================================================================");
+            foreach (var asset in this.Portfolio.Holdings)
+            {
+                var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
+                log.InfoFormat(
+                    "{0,5} {1,9:C} {2,12:C} {3,9:C} {4,12:C} {5,12:C} {6,9:C} {7,10:P}",
+                    asset.Security.Ticker,
+                    asset.BookPrice,
+                    asset.BookCost,
+                    asset.LastPrice,
+                    asset.MarketValue,
+                    asset.DividendsPaid,
+                    asset.ManagementCost,
+                    currentAllocation);
+            }
+
+            var bookCost = this.Portfolio.Holdings.Sum(o => o.BookCost);
+            var dividendsPaid = this.Portfolio.Holdings.Sum(o => o.DividendsPaid);
+            var managementExpenses = this.Portfolio.Holdings.Sum(o => o.ManagementCost);
+
+            log.Info("-------------------------------------------------------------------------------------");
+            log.InfoFormat(
+                "Total           {0,12:C}           {1,12:C} {2,12:C} {3,9:C}",
+                bookCost,
+                this.Portfolio.MarketValue,
+                dividendsPaid,
+                managementExpenses);
+
+            var totalReturn = this.Portfolio.MarketValue - bookCost + dividendsPaid - managementExpenses;
+            log.InfoFormat(
+                "Total return: {0:P}   {0:C}",
+                totalReturn / bookCost,
+                totalReturn);
         }
 
         public void StartSimulation(SimulationParameters parameters)
@@ -147,16 +184,15 @@ namespace Ipa.Model
                               ? (to.Security.SellTransactionFee ?? this.Portfolio.TransactionFee)
                               : (to.Security.BuyTransactionFee ?? this.Portfolio.TransactionFee);
 
-                var units = Math.Abs(
-                    to.Security.AllowsPartialShares
-                        ? to.Amount / spotPrice
-                        : Math.Truncate(to.Amount / spotPrice));
+                var units =
+                    Math.Abs(
+                        to.Security.AllowsPartialShares ? to.Amount / spotPrice : Math.Truncate(to.Amount / spotPrice));
 
                 log.InfoFormat(
-                    "Planning for {0} at {1:C} for {2} units. Fee {3:C}", 
-                    to.Security.Ticker, 
-                    spotPrice, 
-                    units, 
+                    "Planning for {0} at {1:C} for {2} units. Fee {3:C}",
+                    to.Security.Ticker,
+                    spotPrice,
+                    units,
                     fee);
 
                 var asset = this.Portfolio.Holdings.FirstOrDefault(o => o.Security.Ticker == to.Security.Ticker);
@@ -244,6 +280,9 @@ namespace Ipa.Model
         {
             log.InfoFormat("Updating portfolio market value on {0:d}", this.CurrentDate);
 
+            var cashPosition = this.Portfolio.GetCashPosition();
+            var cash = cashPosition.BookCost;
+
             // Update current market value
             foreach (var asset in this.Portfolio.Holdings)
             {
@@ -251,8 +290,14 @@ namespace Ipa.Model
                 var dividendEntry = asset.Security.GetDividends(this.CurrentDate);
                 asset.LastPrice = priceEntry.AveragePrice;
                 asset.MarketValue = priceEntry.AveragePrice * asset.Units;
-                asset.DividendsPaid += dividendEntry * asset.Units;
+                var dividends = dividendEntry * asset.Units;
+                asset.DividendsPaid += dividends;
+                cash += dividends;
             }
+
+            cashPosition.BookCost = cash;
+            cashPosition.MarketValue = cashPosition.BookCost;
+            cashPosition.Units = cashPosition.BookCost / cashPosition.LastPrice;
 
             // Calculate portfolio total market value
             this.Portfolio.MarketValue = this.Portfolio.Holdings.Sum(o => o.MarketValue);

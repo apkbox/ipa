@@ -41,6 +41,8 @@ namespace Ipa.Model.Reader
 
         public IList<SecurityPriceRecord> PriceHistory { get; set; }
 
+        public IList<SecurityDividendRecord> DividendHistory { get; set; }
+
         public decimal? SellFee { get; set; }
 
         public string Ticker { get; set; }
