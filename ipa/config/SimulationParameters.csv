@@ -1,4 +1,4 @@
 ﻿SimulationId,ModelPortfolioId,PortfolioId,InceptionDate,StopDate,TransactionFee,ForceInitialRebalancing
-"SMALL","MY_TFSA","SMALL",2016-03-01,,9.95,1
-"MY_TFSA","MY_TFSA","MY_TFSA",2015-01-01,,9.95,1
-"RBC_TFSA","RBC_TFSA","RBC_TFSA","2015-01-01",,9.95,1
+"Garth1_CASH_20k","Garth1","CASH_20k",2015-12-01,,9.95,1
+"RBC_ETF_CASH_20k","RBC_ETF","CASH_20k",2015-12-01,,9.95,1
+"XUS_VSB_CASH_20k","XUS_VSB","CASH_20k",2015-12-01,,9.95,1

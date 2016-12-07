@@ -16,6 +16,8 @@ namespace Ipa
     using Ipa.Model;
     using Ipa.Model.Reader;
 
+    using NLog.Fluent;
+
     internal class Program
     {
         #region Methods
@@ -31,7 +33,9 @@ namespace Ipa
             logger.Info("Started");
             var reader = new DataReader();
             var simParams = reader.BuildDb();
-            new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "SMALL"));
+            //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Garth1_CASH_20k"));
+            new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "RBC_ETF_CASH_20k"));
+            //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "XUS_VSB_CASH_20k"));
 
             logger.Info("Exiting");
             // Console.ReadKey();

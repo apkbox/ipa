@@ -103,13 +103,13 @@ namespace Ipa.Model
             }
 
             log.Info(string.Empty);
-            log.Info("Ticker  Book Pr    Book Cost Mar Price    Mar Value     Dividends   MgmCost     Alloc");
-            log.Info("=====================================================================================");
+            log.Info("Ticker    Book Pr    Book Cost Mar Price    Mar Value     Dividends   MgmCost     Alloc");
+            log.Info("=======================================================================================");
             foreach (var asset in this.Portfolio.Holdings)
             {
                 var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
                 log.InfoFormat(
-                    "{0,5} {1,9:C} {2,12:C} {3,9:C} {4,12:C} {5,12:C} {6,9:C} {7,10:P}",
+                    "{0,7} {1,9:C} {2,12:C} {3,9:C} {4,12:C} {5,12:C} {6,9:C} {7,10:P}",
                     asset.Security.Ticker,
                     asset.BookPrice,
                     asset.BookCost,
@@ -124,9 +124,9 @@ namespace Ipa.Model
             var dividendsPaid = this.Portfolio.Holdings.Sum(o => o.DividendsPaid);
             var managementExpenses = this.Portfolio.Holdings.Sum(o => o.ManagementCost);
 
-            log.Info("-------------------------------------------------------------------------------------");
+            log.Info("---------------------------------------------------------------------------------------");
             log.InfoFormat(
-                "Total           {0,12:C}           {1,12:C} {2,12:C} {3,9:C}",
+                "Total             {0,12:C}           {1,12:C} {2,12:C} {3,9:C}",
                 bookCost,
                 this.Portfolio.MarketValue,
                 dividendsPaid,
@@ -134,7 +134,7 @@ namespace Ipa.Model
 
             var totalReturn = this.Portfolio.MarketValue - bookCost + dividendsPaid - managementExpenses;
             log.InfoFormat(
-                "Total return: {0:P}   {0:C}",
+                "Total return: {0:P}   {1:C}",
                 totalReturn / bookCost,
                 totalReturn);
         }
@@ -239,7 +239,7 @@ namespace Ipa.Model
 
                 Debug.Assert(asset.Units >= 0, "Negative units");
 
-                if (asset.Units == 0)
+                if (asset.Units == 0 && asset.Security.FixedPrice == null)
                 {
                     log.InfoFormat("All units sold. Removing position from portfolio.");
                     this.Portfolio.Holdings.Remove(asset);
@@ -307,7 +307,7 @@ namespace Ipa.Model
                 var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
                 var dividendEntry = asset.Security.GetDividends(this.CurrentDate);
                 log.InfoFormat(
-                    "    {0} {1:C} {2} {3:C}, Allocation: {4:P}",
+                    "    {0,7} {1,9:C} {2,9} {3,12:C}, Allocation: {4:P}",
                     asset.Security.Ticker,
                     asset.LastPrice,
                     dividendEntry,
@@ -315,7 +315,7 @@ namespace Ipa.Model
                     currentAllocation);
             }
 
-            log.InfoFormat("Portfolio market value {0}", this.Portfolio.MarketValue);
+            log.InfoFormat("Portfolio market value {0:C}", this.Portfolio.MarketValue);
         }
 
         #endregion

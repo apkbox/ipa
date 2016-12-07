@@ -253,7 +253,7 @@ namespace Ipa.Model.Reader
 
         private IList<SecurityDividendRecord> ReadSecurityDividendHistory(string ticker)
         {
-            using (var reader = new StreamReader(string.Format("config/{0}_SecurityDividends.csv", ticker)))
+            using (var reader = new StreamReader(string.Format("config/quotes/{0}_SecurityDividends.csv", ticker)))
             {
                 var csv = new CsvReader(reader);
                 csv.Configuration.RegisterClassMap<SecurityDividendRecord>();
@@ -263,7 +263,7 @@ namespace Ipa.Model.Reader
 
         private IList<SecurityPriceRecord> ReadSecurityPriceHistory(string ticker)
         {
-            using (var reader = new StreamReader(string.Format("config/{0}_SecurityPrices.csv", ticker)))
+            using (var reader = new StreamReader(string.Format("config/quotes/{0}_SecurityPrices.csv", ticker)))
             {
                 var csv = new CsvReader(reader);
                 csv.Configuration.RegisterClassMap<SecurityPriceRecord>();

@@ -91,58 +91,106 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="config\BSV_SecurityDividends.csv">
+    <None Include="config\CASH_10k_Holdings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\BSV_SecurityPrices.csv">
+    <None Include="config\Garth1_ModelPortfolioAssets.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\CDZ_SecurityDividends.csv">
+    <None Include="config\quotes\BSV_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\CDZ_SecurityPrices.csv">
+    <None Include="config\quotes\BSV_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\CMR_SecurityDividends.csv">
+    <None Include="config\quotes\CDZ.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\CMR_SecurityPrices.csv">
+    <None Include="config\quotes\CDZ.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\IJH_SecurityDividends.csv">
+    <None Include="config\quotes\CMR.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\IJH_SecurityPrices.csv">
+    <None Include="config\quotes\CMR.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\CPD.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\CPD.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\IJH_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\IJH_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\ModelPortfolios.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\MY_TFSA_Holdings.csv">
+    <None Include="config\CASH_100k_Holdings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\MY_TFSA_ModelPortfolioAssets.csv">
+    <None Include="config\XUS_VSB_ModelPortfolioAssets.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\Portfolios.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\RBC_TFSA_Holdings.csv">
+    <None Include="config\quotes\VCN.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\RBC_TFSA_ModelPortfolioAssets.csv">
+    <None Include="config\quotes\VCN.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\RBO_SecurityDividends.csv">
+    <None Include="config\quotes\VEE.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\RBO_SecurityPrices.csv">
+    <None Include="config\quotes\VEE.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\RID_SecurityDividends.csv">
+    <None Include="config\quotes\VSC.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\RID_SecurityPrices.csv">
+    <None Include="config\quotes\VSC.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XHY.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XHY.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XRB.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XRB.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XRE.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XRE.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\CASH_20k_Holdings.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\RBC_ETF_ModelPortfolioAssets.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\RBO.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\RBO.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\RID.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\RID.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\Securities.csv">
@@ -151,73 +199,70 @@
     <None Include="config\SimulationParameters.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\SMALL_Holdings.csv">
+    <None Include="config\quotes\VAB.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VAB_SecurityDividends.csv">
+    <None Include="config\quotes\VAB.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VAB_SecurityPrices.csv">
+    <None Include="config\quotes\VCSH_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VCSH_SecurityDividends.csv">
+    <None Include="config\quotes\VCSH_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VCSH_SecurityPrices.csv">
+    <None Include="config\quotes\VGG.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VGG_SecurityDividends.csv">
+    <None Include="config\quotes\VGG.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VGG_SecurityPrices.csv">
+    <None Include="config\quotes\VSB.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VSB_SecurityDividends.csv">
+    <None Include="config\quotes\VSB.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VSB_SecurityPrices.csv">
+    <None Include="config\quotes\VUN.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VUN_SecurityDividends.csv">
+    <None Include="config\quotes\VUN.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\VUN_SecurityPrices.csv">
+    <None Include="config\quotes\XEC.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XEC_SecurityDividends.csv">
+    <None Include="config\quotes\XEC.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XEC_SecurityPrices.csv">
+    <None Include="config\quotes\XEF.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XEF_SecurityDividends.csv">
+    <None Include="config\quotes\XEF.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XEF_SecurityPrices.csv">
+    <None Include="config\quotes\XHB.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XHB_SecurityDividends.csv">
+    <None Include="config\quotes\XHB.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XHB_SecurityPrices.csv">
+    <None Include="config\quotes\XIC.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XIC_SecurityDividends.csv">
+    <None Include="config\quotes\XIC.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XIC_SecurityPrices.csv">
+    <None Include="config\quotes\XUS.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XUS_SecurityDividends.csv">
+    <None Include="config\quotes\XUS.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\XUS_SecurityPrices.csv">
+    <None Include="config\quotes\ZLB.TO_SecurityDividends.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="config\ZLB_SecurityDividends.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="config\ZLB_SecurityPrices.csv">
+    <None Include="config\quotes\ZLB.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="NLog.config">

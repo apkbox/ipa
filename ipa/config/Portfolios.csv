@@ -1,4 +1,5 @@
 ﻿PortfolioId,Name,TransactionFee
-"SMALL","Small portfolio",9.95
-"MY_TFSA","My ETF based portfolio",9.95
-"RBC_TFSA","RBC ETF based portfolio",9.95
+"CASH_10k","$10000 cash portfolio",9.95
+"CASH_20k","$20000 cash portfolio",9.95
+"CASH_100k","$100000 cash portfolio",9.95
+
