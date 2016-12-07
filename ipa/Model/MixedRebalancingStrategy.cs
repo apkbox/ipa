@@ -6,15 +6,22 @@
 //   Defines the MixedRebalancingStrategy type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
+    using Common.Logging;
+
     public class MixedRebalancingStrategy : IRebalancingStrategy
     {
+        #region Static Fields
+
+        private static ILog log = LogManager.GetLogger<MixedRebalancingStrategy>();
+
+        #endregion
+
         #region Constructors and Destructors
 
         public MixedRebalancingStrategy()
@@ -45,11 +52,11 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public bool Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio)
+        public RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio)
         {
             if (elapsed < this.Frequency)
             {
-                return false;
+                return RebalancingCheckResult.NotArrived;
             }
 
             foreach (var asset in portfolio.Holdings)
@@ -63,7 +70,8 @@ namespace Ipa.Model
                     // so the portfolio needs to be rebalanced.
                     if (currentAllocation > 0)
                     {
-                        return true;
+                        log.InfoFormat("Rebalancing required: non-model assets present.");
+                        return RebalancingCheckResult.Rebalance;
                     }
 
                     continue;
@@ -74,15 +82,23 @@ namespace Ipa.Model
 
                 if (drift > this.Threshold)
                 {
-                    return true;
+                    log.InfoFormat(
+                        "Rebalancing required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.", 
+                        modelAsset.Security.Ticker, 
+                        drift, 
+                        targetAllocation, 
+                        this.Threshold);
+                    return RebalancingCheckResult.Rebalance;
                 }
             }
 
-            return false;
+            return RebalancingCheckResult.Skipped;
         }
 
         public List<TradeOrderModel> Rebalance(ModelPortfolioModel model, PortfolioModel portfolio)
         {
+            log.InfoFormat("Rebalancing '{0}' using '{1}'", portfolio.Name, model.Name);
+
             var tradesList = new List<TradeOrderModel>();
 
             // Important: Note that rebalancing should use current or next available security price 
@@ -91,34 +107,52 @@ namespace Ipa.Model
             // the next opportunity to trade for rebalancing lies forward.
             // On the order side, the rebalancing should generate trades list only that will be executed
             // by simulation, which then correct things.
-            // TODO: Do we need to make multiple iterations? First iteration excludes all assets that do not need
-            // rebalancing and adjusts total amount, then the second iteration does the actual job of preparing
-            // trade orders. This will avoid situation when asset has excess, but cannot be used because it
-            // is below rebalancing thereshold.
-            // Similar issue is when over the threshold security is sold, but it is determined that other securities are
-            // below threshold, the one end up with excess cash, and still unbalanced portfolio as this cash
-            // shifts the balance again.
             {
+                // TODO: Do we need to make multiple iterations? First iteration excludes all assets that do not need
+                // rebalancing and adjusts total amount, then the second iteration does the actual job of preparing
+                // trade orders. This will avoid situation when asset has excess, but cannot be used because it
+                // is below rebalancing thereshold.
+                // Similar issue is when over the threshold security is sold,
+                // but it is determined that other securities are
+                // below threshold, the one end up with excess cash, and still unbalanced portfolio as this cash
+                // shifts the balance again.
             }
 
             // Make combined list of current holdings and model assets.
             var assets = model.Assets.Select(o => new PortfolioAssetModel(o.Security))
                 .ToDictionary(o => o.Security.Ticker);
+            log.InfoFormat("Model assets:");
+            foreach (var a in assets)
+            {
+                log.InfoFormat("    {0}", a.Value.Security.Ticker);
+            }
+
             var holdings = portfolio.Holdings.ToDictionary(o => o.Security.Ticker);
+            log.InfoFormat("Holdings:");
             foreach (var h in holdings)
             {
+                log.InfoFormat("    {0}", h.Value.Security.Ticker);
                 assets[h.Key] = h.Value;
             }
 
             foreach (var asset in assets.Values)
             {
+                log.InfoFormat("Calculating {0}", asset.Security.Ticker);
+
                 var targetAllocation = model.GetAsset(asset.Security.Ticker).Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
                 var drift = Math.Abs(targetAllocation - currentAllocation);
 
+                log.InfoFormat(
+                    "        current: {0:P}, target: {1:P}, drift: {2:P}", 
+                    currentAllocation, 
+                    targetAllocation, 
+                    drift);
+
                 // Check if asset allocation deviated and skip if still within tolerance.
                 if (drift < this.Threshold)
                 {
+                    log.InfoFormat("        Below {0:P} threshold, skipping", this.Threshold);
                     continue;
                 }
 
@@ -143,12 +177,15 @@ namespace Ipa.Model
                     }
                 }
 
+                log.InfoFormat("        Excess {0}", excess);
+
                 // Check if there is at least one unit to buy or sell.
                 // If amount is too small, skip it.
                 // TODO: Add threshold that allows to trade in case price is really close to excess.
                 // This could be tricky as if the last price exceeds few cents, that really cannot be used
                 if (Math.Abs(excess) < asset.LastPrice)
                 {
+                    log.InfoFormat("        Excess is less than last price, skipping");
                     continue;
                 }
 

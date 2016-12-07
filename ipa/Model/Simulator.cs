@@ -6,7 +6,6 @@
 //   Defines the Simulator type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     using System;
@@ -14,8 +13,16 @@ namespace Ipa.Model
     using System.Diagnostics;
     using System.Linq;
 
+    using Common.Logging;
+
     public class Simulator
     {
+        #region Static Fields
+
+        private static ILog log = LogManager.GetLogger<Simulator>();
+
+        #endregion
+
         #region Fields
 
         private IList<TradeOrderModel> tradeOrders;
@@ -36,17 +43,23 @@ namespace Ipa.Model
 
         public void SimulatePortfolio(SimulationParameters parameters)
         {
+            log.InfoFormat(
+                "Simulating portfolio '{0}' using model portfolio '{1}'", 
+                parameters.InitialPortfolio.Name, 
+                parameters.ModelPortfolio.Name);
+
             this.CurrentDate = parameters.InceptionDate;
-            this.LastRebalancing = this.CurrentDate;
             this.Portfolio = parameters.InitialPortfolio;
             this.Portfolio.TransactionFee = parameters.TransactionFee;
 
             if (parameters.ForceInitialRebalancing)
             {
+                log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
                 this.UpdateHoldingsMarketValue();
                 this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                    parameters.ModelPortfolio,
+                    parameters.ModelPortfolio, 
                     this.Portfolio);
+                this.LastRebalancing = this.CurrentDate;
             }
 
             // Walk the timeline and update market price, calculate dividends and perform rebalancing
@@ -68,14 +81,22 @@ namespace Ipa.Model
                 // Check if rebalancing is needed
                 if (this.tradeOrders == null)
                 {
-                    if (this.Portfolio.RebalancingStrategy.Check(
+                    var result = this.Portfolio.RebalancingStrategy.Check(
                         elapsedSinceLastRebalancing,
                         parameters.ModelPortfolio,
-                        this.Portfolio))
+                        this.Portfolio);
+                    if (result == RebalancingCheckResult.Rebalance)
                     {
+                        log.InfoFormat("Performing rebalancing on {0:D}", this.CurrentDate);
                         this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                            parameters.ModelPortfolio,
+                            parameters.ModelPortfolio, 
                             this.Portfolio);
+                        this.LastRebalancing = this.CurrentDate;
+                    }
+                    else if (result == RebalancingCheckResult.Skipped)
+                    {
+                        log.InfoFormat("Rebalancing time arrived on {0:D}, but was not required", this.CurrentDate);
+                        this.LastRebalancing = this.CurrentDate;
                     }
                 }
             }
@@ -98,17 +119,26 @@ namespace Ipa.Model
 
         private void ExecuteTradeOrders()
         {
+            log.InfoFormat("Executing trade orders on {0:D}", this.CurrentDate);
+
             var cashPosition = this.Portfolio.GetCashPosition();
             var cash = cashPosition.BookCost;
 
+            log.InfoFormat("Cash position: {0:C}", cash);
+
             foreach (var to in this.tradeOrders)
             {
-                Debug.Assert(to.Amount != 0, "No op trade order.");
+                if (to.Amount == 0)
+                {
+                    log.FatalFormat("No op trade order for {0}, Amount: {1:C}", to.Security.Ticker, to.Amount);
+                    Debug.Fail("No op trade order");
+                }
 
                 var priceEntry = to.Security.GetPriceEntry(this.CurrentDate);
                 if (priceEntry == null)
                 {
-                    throw new InvalidOperationException("Security price unavailable");
+                    log.FatalFormat("Price for {0} on {1:d} is not available", to.Security.Ticker, this.CurrentDate);
+                    Debug.Fail("Price not available");
                 }
 
                 var spotPrice = priceEntry.AveragePrice;
@@ -117,18 +147,30 @@ namespace Ipa.Model
                               ? (to.Security.SellTransactionFee ?? this.Portfolio.TransactionFee)
                               : (to.Security.BuyTransactionFee ?? this.Portfolio.TransactionFee);
 
-                var units =
-                    Math.Abs(
-                        to.Security.AllowsPartialShares ? to.Amount / spotPrice : Math.Truncate(to.Amount / spotPrice));
+                var units = Math.Abs(
+                    to.Security.AllowsPartialShares
+                        ? to.Amount / spotPrice
+                        : Math.Truncate(to.Amount / spotPrice));
+
+                log.InfoFormat(
+                    "Planning for {0} at {1:C} for {2} units. Fee {3:C}", 
+                    to.Security.Ticker, 
+                    spotPrice, 
+                    units, 
+                    fee);
 
                 var asset = this.Portfolio.Holdings.FirstOrDefault(o => o.Security.Ticker == to.Security.Ticker);
                 if (asset == null)
                 {
+                    log.Info("Asset currently not owned.");
+
                     if (to.Amount < 0)
                     {
-                        throw new Exception("Attempt to sell asset not being own.");
+                        log.Fatal("Attempt to sell asset not being own.");
+                        Debug.Fail("Attempt to sell asset not being own.");
                     }
 
+                    log.InfoFormat("Creating portfolio position for {0}", to.Security.Ticker);
                     asset = new PortfolioAssetModel(to.Security);
                     this.Portfolio.Holdings.Add(asset);
                 }
@@ -136,10 +178,12 @@ namespace Ipa.Model
                 // Check if we try to sell more units than own
                 if (to.Amount < 0 && asset.Units < units)
                 {
+                    log.InfoFormat("Selling more units ({0}) than owned ({1})", units, asset.Units);
                     units = asset.Units;
                 }
 
                 var tradingBalance = units * spotPrice;
+                log.InfoFormat("Final price tag {0:C} for {1} units at {2:C}", tradingBalance, units, spotPrice);
 
                 if (to.Amount < 0)
                 {
@@ -152,12 +196,16 @@ namespace Ipa.Model
                     asset.BookCost += tradingBalance + fee;
                 }
 
+                log.InfoFormat("{0} units and {1:C} book cost after adjustment", asset.Units, asset.BookCost);
+
                 asset.ManagementCost += fee;
+                log.InfoFormat("Total of management fees {0:C}", asset.ManagementCost);
 
                 Debug.Assert(asset.Units >= 0, "Negative units");
 
                 if (asset.Units == 0)
                 {
+                    log.InfoFormat("All units sold. Removing position from portfolio.");
                     this.Portfolio.Holdings.Remove(asset);
                 }
 
@@ -168,35 +216,61 @@ namespace Ipa.Model
                 {
                     if (to.Amount < 0)
                     {
-                        cash += tradingBalance;
+                        cash += tradingBalance - fee;
                     }
                     else
                     {
-                        cash -= tradingBalance;
+                        cash -= tradingBalance + fee;
                     }
+
+                    log.InfoFormat("Cash position after trade {0:C}", cash);
                 }
             }
 
-            Debug.Assert(cash >= 0, "Negative cash after executing trade orders.");
+            if (cash < 0)
+            {
+                log.Fatal("Negative cash after executing trade orders.");
+                Debug.Fail("Negative cash after executing trade orders.");
+            }
 
             cashPosition.BookCost = cash;
             cashPosition.MarketValue = cashPosition.BookCost;
             cashPosition.Units = cashPosition.BookCost / cashPosition.LastPrice;
+
+            log.InfoFormat("Cash after all trades {0:C}", cash);
         }
 
         private void UpdateHoldingsMarketValue()
         {
+            log.InfoFormat("Updating portfolio market value on {0:d}", this.CurrentDate);
+
             // Update current market value
             foreach (var asset in this.Portfolio.Holdings)
             {
                 var priceEntry = asset.Security.GetLastPriceEntry(this.CurrentDate);
+                var dividendEntry = asset.Security.GetDividends(this.CurrentDate);
                 asset.LastPrice = priceEntry.AveragePrice;
                 asset.MarketValue = priceEntry.AveragePrice * asset.Units;
-                asset.DividendsPaid += asset.Security.GetDividends(this.CurrentDate) * asset.Units;
+                asset.DividendsPaid += dividendEntry * asset.Units;
             }
 
             // Calculate portfolio total market value
             this.Portfolio.MarketValue = this.Portfolio.Holdings.Sum(o => o.MarketValue);
+
+            foreach (var asset in this.Portfolio.Holdings)
+            {
+                var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
+                var dividendEntry = asset.Security.GetDividends(this.CurrentDate);
+                log.InfoFormat(
+                    "    {0} {1:C} {2} {3:C}, Allocation: {4:P}",
+                    asset.Security.Ticker,
+                    asset.LastPrice,
+                    dividendEntry,
+                    asset.MarketValue,
+                    currentAllocation);
+            }
+
+            log.InfoFormat("Portfolio market value {0}", this.Portfolio.MarketValue);
         }
 
         #endregion

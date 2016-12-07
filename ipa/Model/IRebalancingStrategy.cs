@@ -16,7 +16,7 @@ namespace Ipa.Model
     {
         #region Public Methods and Operators
 
-        bool Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio);
+        RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio);
 
         List<TradeOrderModel> Rebalance(ModelPortfolioModel model, PortfolioModel portfolio);
 
