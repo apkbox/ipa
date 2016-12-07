@@ -26,6 +26,7 @@ namespace Ipa.Model.Reader
             this.Map(p => p.StopDate).Default(null);
             this.Map(p => p.TransactionFee);
             this.Map(p => p.ForceInitialRebalancing);
+            this.Map(p => p.SetInitialBookCost);
         }
 
         #endregion
@@ -39,6 +40,8 @@ namespace Ipa.Model.Reader
         public string ModelPortfolioId { get; set; }
 
         public string PortfolioId { get; set; }
+
+        public bool SetInitialBookCost { get; set; }
 
         public string SimulationId { get; set; }
 

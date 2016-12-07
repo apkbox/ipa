@@ -6,6 +6,7 @@
 //   Defines the MixedRebalancingStrategy type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
     using System;
@@ -83,10 +84,10 @@ namespace Ipa.Model
                 if (drift > this.Threshold)
                 {
                     log.InfoFormat(
-                        "Rebalancing required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.", 
-                        modelAsset.Security.Ticker, 
-                        drift, 
-                        targetAllocation, 
+                        "Rebalancing required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.",
+                        modelAsset.Security.Ticker,
+                        drift,
+                        targetAllocation,
                         this.Threshold);
                     return RebalancingCheckResult.Rebalance;
                 }
@@ -106,8 +107,8 @@ namespace Ipa.Model
             // This is because if rebalancing falls on non-trading days for certain securities, then
             // the next opportunity to trade for rebalancing lies forward.
             // On the order side, the rebalancing should generate trades list only that will be executed
-            // by simulation, which then correct things.
             {
+                // by simulation, which then correct things.
                 // TODO: Do we need to make multiple iterations? First iteration excludes all assets that do not need
                 // rebalancing and adjusts total amount, then the second iteration does the actual job of preparing
                 // trade orders. This will avoid situation when asset has excess, but cannot be used because it
@@ -119,8 +120,8 @@ namespace Ipa.Model
             }
 
             // Make combined list of current holdings and model assets.
-            var assets = model.Assets.Select(o => new PortfolioAssetModel(o.Security))
-                .ToDictionary(o => o.Security.Ticker);
+            var assets =
+                model.Assets.Select(o => new PortfolioAssetModel(o.Security)).ToDictionary(o => o.Security.Ticker);
             log.InfoFormat("Model assets:");
             foreach (var a in assets)
             {
@@ -139,14 +140,15 @@ namespace Ipa.Model
             {
                 log.InfoFormat("Calculating {0}", asset.Security.Ticker);
 
-                var targetAllocation = model.GetAsset(asset.Security.Ticker).Allocation;
+                var modelAsset = model.GetAsset(asset.Security.Ticker);
+                var targetAllocation = modelAsset == null ? 0 : modelAsset.Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
                 var drift = Math.Abs(targetAllocation - currentAllocation);
 
                 log.InfoFormat(
-                    "        current: {0:P}, target: {1:P}, drift: {2:P}", 
-                    currentAllocation, 
-                    targetAllocation, 
+                    "        current: {0:P}, target: {1:P}, drift: {2:P}",
+                    currentAllocation,
+                    targetAllocation,
                     drift);
 
                 // Check if asset allocation deviated and skip if still within tolerance.
@@ -167,13 +169,14 @@ namespace Ipa.Model
                 if (excess > 0)
                 {
                     var fee = asset.Security.SellTransactionFee ?? portfolio.TransactionFee;
-                    if (fee / excess <= this.TradingExpenseThreshold)
+                    if (fee / excess > this.TradingExpenseThreshold)
                     {
-                        excess -= fee;
+                        excess = 0;
                     }
                     else
                     {
-                        excess = 0;
+                        // TODO: Why do we do this?
+                        // excess -= fee;
                     }
                 }
 

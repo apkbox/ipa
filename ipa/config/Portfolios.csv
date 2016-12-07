@@ -1,5 +1,8 @@
 ﻿PortfolioId,Name,TransactionFee
 "CASH_10k","$10000 cash portfolio",9.95
 "CASH_20k","$20000 cash portfolio",9.95
+"CASH_41k","$41000 cash portfolio",9.95
 "CASH_100k","$100000 cash portfolio",9.95
+"Ex","Some unbalanced",9.95
+
 

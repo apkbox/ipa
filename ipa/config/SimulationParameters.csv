@@ -1,4 +1,7 @@
-﻿SimulationId,ModelPortfolioId,PortfolioId,InceptionDate,StopDate,TransactionFee,ForceInitialRebalancing
-"Garth1_CASH_20k","Garth1","CASH_20k",2015-12-01,,9.95,1
-"RBC_ETF_CASH_20k","RBC_ETF","CASH_20k",2015-12-01,,9.95,1
-"XUS_VSB_CASH_20k","XUS_VSB","CASH_20k",2015-12-01,,9.95,1
+﻿SimulationId,ModelPortfolioId,PortfolioId,InceptionDate,StopDate,TransactionFee,ForceInitialRebalancing,SetInitialBookCost
+"Garth1_CASH_20k","Garth1","CASH_20k",2015-12-01,,9.95,1,0
+"RBC_ETF_CASH_20k","RBC_ETF","CASH_20k",2015-12-01,,9.95,1,0
+"XUS_VSB_CASH_20k","XUS_VSB","CASH_20k",2015-12-01,,9.95,1,0
+"Garth1_CASH_41k","Garth1","CASH_20k",2016-01-01,,9.95,1,0
+"Garth1_Ex","Garth1","Ex",2015-12-01,,9.95,1,1
+

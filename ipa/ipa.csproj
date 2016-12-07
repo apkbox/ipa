@@ -94,6 +94,12 @@
     <None Include="config\CASH_10k_Holdings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="config\CASH_41k_Holdings.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\Ex_Holdings.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="config\Garth1_ModelPortfolioAssets.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -131,6 +137,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\CASH_100k_Holdings.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XQB.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XQB.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XQQ.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\XQQ.TO_SecurityPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\ZHY.TO_SecurityDividends.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\quotes\ZHY.TO_SecurityPrices.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="config\XUS_VSB_ModelPortfolioAssets.csv">

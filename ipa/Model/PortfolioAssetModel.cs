@@ -42,6 +42,11 @@ namespace Ipa.Model
         {
             get
             {
+                if (this.Units == 0)
+                {
+                    return 0;
+                }
+
                 return this.BookCost / this.Units;
             }
         }

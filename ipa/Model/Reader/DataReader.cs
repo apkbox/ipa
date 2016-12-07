@@ -55,7 +55,8 @@ namespace Ipa.Model.Reader
                                  InceptionDate = spr.InceptionDate,
                                  StopDate = spr.StopDate ?? DateTime.Today,
                                  TransactionFee = spr.TransactionFee,
-                                 ForceInitialRebalancing = spr.ForceInitialRebalancing
+                                 ForceInitialRebalancing = spr.ForceInitialRebalancing,
+                                 SetInitialBookCost = spr.SetInitialBookCost
                              };
                 this.simulationParameters.Add(sp);
             }

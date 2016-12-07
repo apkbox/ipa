@@ -53,6 +53,11 @@ namespace Ipa.Model
             this.Portfolio = parameters.InitialPortfolio;
             this.Portfolio.TransactionFee = parameters.TransactionFee;
 
+            if (parameters.SetInitialBookCost)
+            {
+                this.UpdateHoldingsInitialBookCost();
+            }
+
             if (parameters.ForceInitialRebalancing)
             {
                 log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
@@ -103,14 +108,15 @@ namespace Ipa.Model
             }
 
             log.Info(string.Empty);
-            log.Info("Ticker    Book Pr    Book Cost Mar Price    Mar Value     Dividends   MgmCost     Alloc");
-            log.Info("=======================================================================================");
+            log.Info("Ticker  Unts  Book Pr    Book Cost Mar Price    Mar Value     Dividends   MgmCost     Alloc");
+            log.Info("===========================================================================================");
             foreach (var asset in this.Portfolio.Holdings)
             {
                 var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
                 log.InfoFormat(
-                    "{0,7} {1,9:C} {2,12:C} {3,9:C} {4,12:C} {5,12:C} {6,9:C} {7,10:P}",
+                    "{0,7} {1,4} {2,9:C} {3,12:C} {4,9:C} {5,12:C} {6,12:C} {7,9:C} {8,10:P}",
                     asset.Security.Ticker,
+                    asset.Units,
                     asset.BookPrice,
                     asset.BookCost,
                     asset.LastPrice,
@@ -122,21 +128,21 @@ namespace Ipa.Model
 
             var bookCost = this.Portfolio.Holdings.Sum(o => o.BookCost);
             var dividendsPaid = this.Portfolio.Holdings.Sum(o => o.DividendsPaid);
+
+            // BUG: This is calculated incorrectly as it does not account for trades related to removed assets.
+            // HACK: Do not remove assets with zero quantity after trading for now.
             var managementExpenses = this.Portfolio.Holdings.Sum(o => o.ManagementCost);
 
-            log.Info("---------------------------------------------------------------------------------------");
+            log.Info("--------------------------------------------------------------------------------------------");
             log.InfoFormat(
-                "Total             {0,12:C}           {1,12:C} {2,12:C} {3,9:C}",
+                "Total                  {0,12:C}           {1,12:C} {2,12:C} {3,9:C}",
                 bookCost,
                 this.Portfolio.MarketValue,
                 dividendsPaid,
                 managementExpenses);
 
             var totalReturn = this.Portfolio.MarketValue - bookCost + dividendsPaid - managementExpenses;
-            log.InfoFormat(
-                "Total return: {0:P}   {1:C}",
-                totalReturn / bookCost,
-                totalReturn);
+            log.InfoFormat("Total return: {0:P}   {1:C}", totalReturn / bookCost, totalReturn);
         }
 
         public void StartSimulation(SimulationParameters parameters)
@@ -174,7 +180,7 @@ namespace Ipa.Model
                 var priceEntry = to.Security.GetPriceEntry(this.CurrentDate);
                 if (priceEntry == null)
                 {
-                    log.FatalFormat("Price for {0} on {1:d} is not available", to.Security.Ticker, this.CurrentDate);
+                    log.FatalFormat("Price for {0} on {1:D} is not available", to.Security.Ticker, this.CurrentDate);
                     Debug.Fail("Price not available");
                 }
 
@@ -189,7 +195,7 @@ namespace Ipa.Model
                         to.Security.AllowsPartialShares ? to.Amount / spotPrice : Math.Truncate(to.Amount / spotPrice));
 
                 log.InfoFormat(
-                    "Planning for {0} at {1:C} for {2} units. Fee {3:C}",
+                    "Projection for {0} at {1:C} for {2} units. Fee {3:C}",
                     to.Security.Ticker,
                     spotPrice,
                     units,
@@ -239,7 +245,8 @@ namespace Ipa.Model
 
                 Debug.Assert(asset.Units >= 0, "Negative units");
 
-                if (asset.Units == 0 && asset.Security.FixedPrice == null)
+                // HACK: Do not remove as it removes management cost
+                if (false && asset.Units == 0 && asset.Security.FixedPrice == null)
                 {
                     log.InfoFormat("All units sold. Removing position from portfolio.");
                     this.Portfolio.Holdings.Remove(asset);
@@ -276,9 +283,33 @@ namespace Ipa.Model
             log.InfoFormat("Cash after all trades {0:C}", cash);
         }
 
+        private void UpdateHoldingsInitialBookCost()
+        {
+            log.InfoFormat("Updating portfolio initial book cost on {0:D}", this.CurrentDate);
+
+            // Update current market value
+            foreach (var asset in this.Portfolio.Holdings)
+            {
+                if (asset.Security.FixedPrice != null)
+                {
+                    continue;
+                }
+
+                var priceEntry = asset.Security.GetLastPriceEntry(this.CurrentDate);
+                asset.LastPrice = priceEntry.AveragePrice;
+                asset.BookCost = priceEntry.AveragePrice * asset.Units;
+
+                log.InfoFormat(
+                    "    {0,7} {1,9:C} {2,12:C}",
+                    asset.Security.Ticker,
+                    asset.BookPrice,
+                    asset.BookCost);
+            }
+        }
+
         private void UpdateHoldingsMarketValue()
         {
-            log.InfoFormat("Updating portfolio market value on {0:d}", this.CurrentDate);
+            log.InfoFormat("Updating portfolio market value on {0:D}", this.CurrentDate);
 
             var cashPosition = this.Portfolio.GetCashPosition();
             var cash = cashPosition.BookCost;
