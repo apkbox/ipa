@@ -106,8 +106,8 @@ namespace Ipa.Model
             // instead of last in order to be correct.
             // This is because if rebalancing falls on non-trading days for certain securities, then
             // the next opportunity to trade for rebalancing lies forward.
-            // On the order side, the rebalancing should generate trades list only that will be executed
             {
+                // On the order side, the rebalancing should generate trades list only that will be executed
                 // by simulation, which then correct things.
                 // TODO: Do we need to make multiple iterations? First iteration excludes all assets that do not need
                 // rebalancing and adjusts total amount, then the second iteration does the actual job of preparing
@@ -117,6 +117,9 @@ namespace Ipa.Model
                 // but it is determined that other securities are
                 // below threshold, the one end up with excess cash, and still unbalanced portfolio as this cash
                 // shifts the balance again.
+            }
+            {
+                // TODO: We need to make sure that model portfolio allocations add up to 100% or throw an error if they dont.
             }
 
             // Make combined list of current holdings and model assets.
