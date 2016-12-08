@@ -47,13 +47,12 @@ namespace Ipa
 
                 var reader = new DataReader();
                 var simParams = reader.BuildDb();
-                var sim = new Simulator();
                 //const string SimId = "Lousy";
                 const string SimId = "Garth1_Ex";
                 // const string SimId = "Garth1_CASH_20k";
                 // const string SimId = "RBC_ETF_CASH_20k";
                 // const string SimId = "XUS_VSB_CASH_20k";
-                sim.StartSimulation(simParams.First(o => o.SimulationId == SimId));
+                var sim = new Simulator(simParams.First(o => o.SimulationId == SimId));
                 while (sim.ResumeSimulation())
                 {
                     sim.DefaultScheduleHandler();

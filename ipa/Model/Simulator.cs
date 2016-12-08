@@ -36,6 +36,37 @@ namespace Ipa.Model
 
         #endregion
 
+        #region Constructors and Destructors
+
+        public Simulator(SimulationParameters parameters)
+        {
+            this.simParams = parameters;
+            Log.InfoFormat(
+                "Simulating portfolio '{0}' using model portfolio '{1}'",
+                parameters.InitialPortfolio.Name,
+                parameters.ModelPortfolio.Name);
+
+            this.CurrentDate = parameters.InceptionDate;
+            this.Portfolio = parameters.InitialPortfolio;
+            this.Portfolio.TransactionFee = parameters.TransactionFee;
+
+            if (parameters.SetInitialBookCost)
+            {
+                this.UpdateHoldingsInitialBookCost();
+            }
+
+            if (parameters.ForceInitialRebalancing)
+            {
+                Log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
+                this.UpdateHoldingsMarketValue();
+                this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
+                    parameters.ModelPortfolio,
+                    this.Portfolio);
+            }
+        }
+
+        #endregion
+
         #region Properties
 
         private DateTime CurrentDate { get; set; }
@@ -101,33 +132,6 @@ namespace Ipa.Model
 
             var totalReturn = this.Portfolio.MarketValue - bookCost + dividendsPaid - managementExpenses;
             Log.InfoFormat("Total return: {0:P}   {1:C}", totalReturn / bookCost, totalReturn);
-        }
-
-        public void StartSimulation(SimulationParameters parameters)
-        {
-            this.simParams = parameters;
-            Log.InfoFormat(
-                "Simulating portfolio '{0}' using model portfolio '{1}'",
-                parameters.InitialPortfolio.Name,
-                parameters.ModelPortfolio.Name);
-
-            this.CurrentDate = parameters.InceptionDate;
-            this.Portfolio = parameters.InitialPortfolio;
-            this.Portfolio.TransactionFee = parameters.TransactionFee;
-
-            if (parameters.SetInitialBookCost)
-            {
-                this.UpdateHoldingsInitialBookCost();
-            }
-
-            if (parameters.ForceInitialRebalancing)
-            {
-                Log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
-                this.UpdateHoldingsMarketValue();
-                this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                    parameters.ModelPortfolio,
-                    this.Portfolio);
-            }
         }
 
         public bool ResumeSimulation()
