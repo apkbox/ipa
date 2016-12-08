@@ -1,26 +1,25 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="SecurityModel.cs" company="Alex Kozlov">
+// <copyright file="FinSec.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the SecurityModel type.
+//   Defines the FinSec type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class SecurityModel
+    public class FinSec
     {
         #region Constructors and Destructors
 
-        public SecurityModel()
+        public FinSec()
         {
-            this.PriceHistory = new List<SecurityPriceModel>();
-            this.DividendHistory = new List<SecurityDividendModel>();
+            this.Quotes = new List<FinSecQuote>();
+            this.Distributions = new List<FinSecDistribution>();
         }
 
         #endregion
@@ -31,7 +30,7 @@ namespace Ipa.Model
 
         public decimal? BuyTransactionFee { get; set; }
 
-        public IList<SecurityDividendModel> DividendHistory { get; private set; }
+        public IList<FinSecDistribution> Distributions { get; private set; }
 
         /// <summary>
         /// Gets or sets fixed price.
@@ -40,7 +39,7 @@ namespace Ipa.Model
 
         public string Name { get; set; }
 
-        public IList<SecurityPriceModel> PriceHistory { get; private set; }
+        public IList<FinSecQuote> Quotes { get; private set; }
 
         public decimal? SellTransactionFee { get; set; }
 
@@ -52,27 +51,27 @@ namespace Ipa.Model
 
         public decimal GetDividends(DateTime date)
         {
-            var dividentPaymentEntry = (from entry in this.DividendHistory
+            var dividentPaymentEntry = (from entry in this.Distributions
                                         orderby entry.TransactionDate ascending
                                         where entry.TransactionDate == date
                                         select entry).FirstOrDefault();
             return dividentPaymentEntry == null ? 0m : dividentPaymentEntry.Amount;
         }
 
-        public SecurityPriceModel GetLastPriceEntry(DateTime date)
+        public FinSecQuote GetLastPriceEntry(DateTime date)
         {
-            return this.FixedPriceOverride(date) ?? (from entry in this.PriceHistory
-                                                     orderby entry.TransactionDate descending
-                                                     where entry.TransactionDate <= date
+            return this.FixedPriceOverride(date) ?? (from entry in this.Quotes
+                                                     orderby entry.TradingDayDate descending
+                                                     where entry.TradingDayDate <= date
                                                      select entry).FirstOrDefault();
         }
 
-        public SecurityPriceModel GetPriceEntry(DateTime date)
+        public FinSecQuote GetPriceEntry(DateTime date)
         {
             return this.FixedPriceOverride(date)
-                   ?? (from entry in this.PriceHistory
-                       orderby entry.TransactionDate ascending
-                       where entry.TransactionDate >= date
+                   ?? (from entry in this.Quotes
+                       orderby entry.TradingDayDate ascending
+                       where entry.TradingDayDate >= date
                        select entry).FirstOrDefault();
         }
 
@@ -80,21 +79,21 @@ namespace Ipa.Model
 
         #region Methods
 
-        private SecurityPriceModel FixedPriceOverride(DateTime date)
+        private FinSecQuote FixedPriceOverride(DateTime date)
         {
             if (this.FixedPrice == null)
             {
                 return null;
             }
 
-            return new SecurityPriceModel
+            return new FinSecQuote
                        {
-                           TransactionDate = date,
-                           OpenPrice = (decimal)this.FixedPrice,
-                           LowPrice = (decimal)this.FixedPrice,
-                           HighPrice = (decimal)this.FixedPrice,
-                           ClosePrice = (decimal)this.FixedPrice,
-                           AdjustedClose = (decimal)this.FixedPrice,
+                           TradingDayDate = date, 
+                           OpenPrice = (decimal)this.FixedPrice, 
+                           LowPrice = (decimal)this.FixedPrice, 
+                           HighPrice = (decimal)this.FixedPrice, 
+                           ClosePrice = (decimal)this.FixedPrice, 
+                           AdjustedClose = (decimal)this.FixedPrice, 
                            Volume = 0
                        };
         }

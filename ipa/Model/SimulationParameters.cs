@@ -22,12 +22,12 @@ namespace Ipa.Model
 
         public DateTime InceptionDate { get; set; }
 
-        public PortfolioModel InitialPortfolio { get; set; }
+        public Portfolio InitialPortfolio { get; set; }
 
         /// <summary>
         /// Gets or sets portfolio model to follow.
         /// </summary>
-        public ModelPortfolioModel ModelPortfolio { get; set; }
+        public ModelPortfolio ModelPortfolioModelPortfolio { get; set; }
 
         public bool SetInitialBookCost { get; set; }
 

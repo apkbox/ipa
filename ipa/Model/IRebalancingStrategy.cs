@@ -16,9 +16,9 @@ namespace Ipa.Model
     {
         #region Public Methods and Operators
 
-        RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio);
+        RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolio modelPortfolio, Portfolio portfolio);
 
-        List<TradeOrderModel> Rebalance(ModelPortfolioModel model, PortfolioModel portfolio);
+        List<TradeOrder> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio);
 
         #endregion
     }

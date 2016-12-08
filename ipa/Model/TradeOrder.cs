@@ -14,7 +14,7 @@ namespace Ipa.Model
     /// as the price of unit can move, but amount we want to transact for
     /// balancing purposes is expressed in money.
     /// </summary>
-    public class TradeOrderModel
+    public class TradeOrder
     {
         #region Public Properties
 
@@ -26,7 +26,7 @@ namespace Ipa.Model
         /// </remarks>
         public decimal Amount { get; set; }
 
-        public SecurityModel Security { get; set; }
+        public FinSec Security { get; set; }
 
         #endregion
     }

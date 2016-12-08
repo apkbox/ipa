@@ -1,31 +1,30 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="PortfolioModel.cs" company="Alex Kozlov">
+// <copyright file="Portfolio.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
 //   Defines the PortfolioModel type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class PortfolioModel
+    public class Portfolio
     {
         #region Constructors and Destructors
 
-        public PortfolioModel()
+        public Portfolio()
         {
-            this.Holdings = new List<PortfolioAssetModel>();
+            this.Holdings = new List<Asset>();
             this.RebalancingStrategy = new MixedRebalancingStrategy();
         }
 
-        public PortfolioModel(PortfolioModel other)
+        public Portfolio(Portfolio other)
         {
-            this.Holdings = other.Holdings.Select(o => new PortfolioAssetModel(o)).ToList();
+            this.Holdings = other.Holdings.Select(o => new Asset(o)).ToList();
             this.LastRebalancingDate = other.LastRebalancingDate;
             this.MarketValue = other.MarketValue;
             this.Name = other.Name;
@@ -37,7 +36,7 @@ namespace Ipa.Model
 
         #region Public Properties
 
-        public IList<PortfolioAssetModel> Holdings { get; private set; }
+        public IList<Asset> Holdings { get; private set; }
 
         public DateTime LastRebalancingDate { get; set; }
 
@@ -62,7 +61,7 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public PortfolioAssetModel GetCashPosition()
+        public Asset GetCashPosition()
         {
             return this.Holdings.FirstOrDefault(o => o.Security.Ticker == "$CAD");
         }

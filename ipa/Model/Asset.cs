@@ -9,16 +9,16 @@
 
 namespace Ipa.Model
 {
-    public class PortfolioAssetModel
+    public class Asset
     {
         #region Constructors and Destructors
 
-        public PortfolioAssetModel(SecurityModel security)
+        public Asset(FinSec security)
         {
             this.Security = security;
         }
 
-        public PortfolioAssetModel(PortfolioAssetModel other)
+        public Asset(Asset other)
         {
             this.BookCost = other.BookCost;
             this.DividendsPaid = other.DividendsPaid;
@@ -74,7 +74,7 @@ namespace Ipa.Model
         /// <summary>
         /// Gets or sets security of the asset.
         /// </summary>
-        public SecurityModel Security { get; set; }
+        public FinSec Security { get; set; }
 
         /// <summary>
         /// Gets or sets number of units held in portfolio.

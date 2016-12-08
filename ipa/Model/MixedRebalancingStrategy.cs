@@ -53,18 +53,18 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolioModel model, PortfolioModel portfolio)
+        public RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
             if (elapsed < this.Frequency)
             {
-                return RebalancingCheckResult.NotArrived;
+                return RebalancingCheckResult.Continue;
             }
 
             foreach (var asset in portfolio.Holdings)
             {
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
 
-                var modelAsset = model.GetAsset(asset.Security.Ticker);
+                var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 if (modelAsset == null)
                 {
                     // Portfolio contains significant amount of asset that is not in the model,
@@ -72,7 +72,7 @@ namespace Ipa.Model
                     if (currentAllocation > 0)
                     {
                         log.InfoFormat("Rebalancing required: non-model assets present.");
-                        return RebalancingCheckResult.Rebalance;
+                        return RebalancingCheckResult.Rebalanced;
                     }
 
                     continue;
@@ -89,18 +89,18 @@ namespace Ipa.Model
                         drift,
                         targetAllocation,
                         this.Threshold);
-                    return RebalancingCheckResult.Rebalance;
+                    return RebalancingCheckResult.Rebalanced;
                 }
             }
 
-            return RebalancingCheckResult.Skipped;
+            return RebalancingCheckResult.Hold;
         }
 
-        public List<TradeOrderModel> Rebalance(ModelPortfolioModel model, PortfolioModel portfolio)
+        public List<TradeOrder> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
-            log.InfoFormat("Rebalancing '{0}' using '{1}'", portfolio.Name, model.Name);
+            log.InfoFormat("Rebalancing '{0}' using '{1}'", portfolio.Name, modelPortfolio.Name);
 
-            var tradesList = new List<TradeOrderModel>();
+            var tradesList = new List<TradeOrder>();
 
             // Important: Note that rebalancing should use current or next available security price 
             // instead of last in order to be correct.
@@ -124,7 +124,7 @@ namespace Ipa.Model
 
             // Make combined list of current holdings and model assets.
             var assets =
-                model.Assets.Select(o => new PortfolioAssetModel(o.Security)).ToDictionary(o => o.Security.Ticker);
+                modelPortfolio.Assets.Select(o => new Asset(o.Security)).ToDictionary(o => o.Security.Ticker);
             log.InfoFormat("Model assets:");
             foreach (var a in assets)
             {
@@ -143,7 +143,7 @@ namespace Ipa.Model
             {
                 log.InfoFormat("Calculating {0}", asset.Security.Ticker);
 
-                var modelAsset = model.GetAsset(asset.Security.Ticker);
+                var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 var targetAllocation = modelAsset == null ? 0 : modelAsset.Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
                 var drift = Math.Abs(targetAllocation - currentAllocation);
@@ -197,7 +197,7 @@ namespace Ipa.Model
 
                 if (excess != 0)
                 {
-                    tradesList.Add(new TradeOrderModel { Security = asset.Security, Amount = -excess });
+                    tradesList.Add(new TradeOrder { Security = asset.Security, Amount = -excess });
                 }
             }
 

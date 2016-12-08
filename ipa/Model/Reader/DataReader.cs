@@ -20,12 +20,12 @@ namespace Ipa.Model.Reader
     {
         #region Fields
 
-        private readonly Dictionary<string, ModelPortfolioModel> modelPortfolios =
-            new Dictionary<string, ModelPortfolioModel>();
+        private readonly Dictionary<string, ModelPortfolio> modelPortfolios =
+            new Dictionary<string, ModelPortfolio>();
 
-        private readonly IDictionary<string, PortfolioModel> portfolios = new Dictionary<string, PortfolioModel>();
+        private readonly IDictionary<string, Portfolio> portfolios = new Dictionary<string, Portfolio>();
 
-        private readonly IDictionary<string, SecurityModel> securities = new Dictionary<string, SecurityModel>();
+        private readonly IDictionary<string, FinSec> securities = new Dictionary<string, FinSec>();
 
         private readonly IList<SimulationParameters> simulationParameters = new List<SimulationParameters>();
 
@@ -50,7 +50,7 @@ namespace Ipa.Model.Reader
                 var sp = new SimulationParameters
                              {
                                  SimulationId = spr.SimulationId,
-                                 ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
+                                 ModelPortfolioModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
                                  InitialPortfolio = this.GetPortfolio(spr.PortfolioId),
                                  InceptionDate = spr.InceptionDate,
                                  StopDate = spr.StopDate ?? DateTime.Today,
@@ -68,17 +68,17 @@ namespace Ipa.Model.Reader
 
         #region Methods
 
-        private ModelPortfolioModel GetModelPortfolio(string modelPortfolioId)
+        private ModelPortfolio GetModelPortfolio(string modelPortfolioId)
         {
             if (this.modelPortfolioRecords == null)
             {
                 this.ReadModelPortfolios();
                 foreach (var record in this.modelPortfolioRecords)
                 {
-                    var mpm = new ModelPortfolioModel { Name = record.Value.Name };
+                    var mpm = new ModelPortfolio { Name = record.Value.Name };
                     foreach (var ar in record.Value.Assets)
                     {
-                        var asset = new ModelPortfolioAsset
+                        var asset = new ModelPortfolioAllocation
                                         {
                                             Security = this.GetSecurity(ar.Value.Ticker),
                                             Allocation = ar.Value.Allocation
@@ -93,21 +93,21 @@ namespace Ipa.Model.Reader
             return this.modelPortfolios[modelPortfolioId];
         }
 
-        private PortfolioModel GetPortfolio(string portfolioId)
+        private Portfolio GetPortfolio(string portfolioId)
         {
             if (this.portfolioRecords == null)
             {
                 this.ReadPortfolios();
                 foreach (var record in this.portfolioRecords)
                 {
-                    var pm = new PortfolioModel
+                    var pm = new Portfolio
                                  {
                                      Name = record.Value.Name,
                                      TransactionFee = record.Value.TransactionFee
                                  };
                     foreach (var hr in record.Value.Holdings)
                     {
-                        var asset = new PortfolioAssetModel(this.GetSecurity(hr.Value.Ticker))
+                        var asset = new Asset(this.GetSecurity(hr.Value.Ticker))
                                         {
                                             Units = hr.Value.Units,
                                             BookCost =
@@ -123,14 +123,14 @@ namespace Ipa.Model.Reader
             return this.portfolios[portfolioId];
         }
 
-        private SecurityModel GetSecurity(string ticker)
+        private FinSec GetSecurity(string ticker)
         {
             if (this.securityRecords == null)
             {
                 this.ReadSecurities();
                 foreach (var record in this.securityRecords)
                 {
-                    var sm = new SecurityModel
+                    var sm = new FinSec
                                  {
                                      Ticker = record.Value.Ticker,
                                      Name = record.Value.Name,
@@ -144,9 +144,9 @@ namespace Ipa.Model.Reader
                     {
                         foreach (var spr in record.Value.PriceHistory)
                         {
-                            var sp = new SecurityPriceModel
+                            var sp = new FinSecQuote
                                          {
-                                             TransactionDate = spr.Date,
+                                             TradingDayDate = spr.Date,
                                              OpenPrice = spr.Open,
                                              HighPrice = spr.High,
                                              LowPrice = spr.Low,
@@ -154,7 +154,7 @@ namespace Ipa.Model.Reader
                                              Volume = spr.Volume,
                                              AdjustedClose = spr.AdjClose,
                                          };
-                            sm.PriceHistory.Add(sp);
+                            sm.Quotes.Add(sp);
                         }
                     }
 
@@ -162,12 +162,12 @@ namespace Ipa.Model.Reader
                     {
                         foreach (var dhr in record.Value.DividendHistory)
                         {
-                            var d = new SecurityDividendModel
+                            var d = new FinSecDistribution
                                         {
                                             TransactionDate = dhr.Date,
                                             Amount = dhr.Dividends
                                         };
-                            sm.DividendHistory.Add(d);
+                            sm.Distributions.Add(d);
                         }
                     }
 

@@ -6,15 +6,23 @@
 //   Defines the RebalancingCheckResult type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
     public enum RebalancingCheckResult
     {
-        NotArrived, 
+        /// <summary>
+        /// Continue simulation.
+        /// </summary>
+        Continue, 
 
-        Skipped, 
+        /// <summary>
+        /// Rebalancing time arrived, but rebalancing was not required.
+        /// </summary>
+        Hold,
 
-        Rebalance
+        /// <summary>
+        /// Rebalancing was performed.
+        /// </summary>
+        Rebalanced
     }
 }

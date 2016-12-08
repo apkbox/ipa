@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="ModelPortfolioModel.cs" company="Alex Kozlov">
+// <copyright file="ModelPortfolio.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
@@ -11,22 +11,20 @@ namespace Ipa.Model
     using System.Collections.Generic;
     using System.Linq;
 
-    using Ipa.Model.Reader;
-
-    public class ModelPortfolioModel
+    public class ModelPortfolio
     {
         #region Constructors and Destructors
 
-        public ModelPortfolioModel()
+        public ModelPortfolio()
         {
-            this.Assets = new List<ModelPortfolioAsset>();
+            this.Assets = new List<ModelPortfolioAllocation>();
         }
 
         #endregion
 
         #region Public Properties
 
-        public IList<ModelPortfolioAsset> Assets { get; private set; }
+        public IList<ModelPortfolioAllocation> Assets { get; private set; }
 
         public string Name { get; set; }
 
@@ -34,7 +32,7 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public ModelPortfolioAsset GetAsset(string ticker)
+        public ModelPortfolioAllocation GetAsset(string ticker)
         {
             return this.Assets.FirstOrDefault(o => o.Security.Ticker == ticker);
         }

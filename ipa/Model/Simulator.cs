@@ -26,7 +26,7 @@ namespace Ipa.Model
 
         #region Fields
 
-        private IList<TradeOrderModel> tradeOrders;
+        private IList<TradeOrder> tradeOrders;
 
         #endregion
 
@@ -36,7 +36,7 @@ namespace Ipa.Model
 
         private DateTime LastRebalancing { get; set; }
 
-        private PortfolioModel Portfolio { get; set; }
+        private Portfolio Portfolio { get; set; }
 
         #endregion
 
@@ -47,7 +47,7 @@ namespace Ipa.Model
             log.InfoFormat(
                 "Simulating portfolio '{0}' using model portfolio '{1}'",
                 parameters.InitialPortfolio.Name,
-                parameters.ModelPortfolio.Name);
+                parameters.ModelPortfolioModelPortfolio.Name);
 
             this.CurrentDate = parameters.InceptionDate;
             this.Portfolio = parameters.InitialPortfolio;
@@ -63,7 +63,7 @@ namespace Ipa.Model
                 log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
                 this.UpdateHoldingsMarketValue();
                 this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                    parameters.ModelPortfolio,
+                    parameters.ModelPortfolioModelPortfolio,
                     this.Portfolio);
                 this.LastRebalancing = this.CurrentDate;
             }
@@ -89,17 +89,17 @@ namespace Ipa.Model
                 {
                     var result = this.Portfolio.RebalancingStrategy.Check(
                         elapsedSinceLastRebalancing,
-                        parameters.ModelPortfolio,
+                        parameters.ModelPortfolioModelPortfolio,
                         this.Portfolio);
-                    if (result == RebalancingCheckResult.Rebalance)
+                    if (result == RebalancingCheckResult.Rebalanced)
                     {
                         log.InfoFormat("Performing rebalancing on {0:D}", this.CurrentDate);
                         this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                            parameters.ModelPortfolio,
+                            parameters.ModelPortfolioModelPortfolio,
                             this.Portfolio);
                         this.LastRebalancing = this.CurrentDate;
                     }
-                    else if (result == RebalancingCheckResult.Skipped)
+                    else if (result == RebalancingCheckResult.Hold)
                     {
                         log.InfoFormat("Rebalancing time arrived on {0:D}, but was not required", this.CurrentDate);
                         this.LastRebalancing = this.CurrentDate;
@@ -213,7 +213,7 @@ namespace Ipa.Model
                     }
 
                     log.InfoFormat("Creating portfolio position for {0}", to.Security.Ticker);
-                    asset = new PortfolioAssetModel(to.Security);
+                    asset = new Asset(to.Security);
                     this.Portfolio.Holdings.Add(asset);
                 }
 
