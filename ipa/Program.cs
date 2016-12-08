@@ -10,6 +10,7 @@
 namespace Ipa
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
 
     using Common.Logging;
@@ -47,8 +48,10 @@ namespace Ipa
 
                 var reader = new DataReader();
                 var simParams = reader.BuildDb();
-                //const string SimId = "Lousy";
-                const string SimId = "Garth1_Ex";
+
+                const string SimId = "Other";
+                // const string SimId = "Lousy";
+                // const string SimId = "Garth1_Ex";
                 // const string SimId = "Garth1_CASH_20k";
                 // const string SimId = "RBC_ETF_CASH_20k";
                 // const string SimId = "XUS_VSB_CASH_20k";
@@ -63,6 +66,7 @@ namespace Ipa
             catch (Exception ex)
             {
                 logger.Fatal(ex);
+                Debug.WriteLine(ex);
             }
 
             logger.Info("Exiting");

@@ -55,10 +55,11 @@ namespace Ipa.Model
                 this.UpdateHoldingsInitialBookCost();
             }
 
+            this.UpdateHoldingsMarketValue();
+
             if (parameters.ForceInitialRebalancing)
             {
                 Log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
-                this.UpdateHoldingsMarketValue();
                 this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
                     parameters.ModelPortfolio,
                     this.Portfolio);
@@ -341,16 +342,21 @@ namespace Ipa.Model
             // Calculate portfolio total market value
             this.Portfolio.MarketValue = this.Portfolio.Holdings.Sum(o => o.MarketValue);
 
+            Log.InfoFormat("   Ticker  Units   Book Pr    Book Cost   Last Pr Market Value    Dividends Allocation");
+
             foreach (var asset in this.Portfolio.Holdings)
             {
                 var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
                 var dividendEntry = asset.Security.GetDividends(this.CurrentDate);
                 Log.InfoFormat(
-                    "    {0,7} {1,9:C} {2,9} {3,12:C}, Allocation: {4:P}",
+                    "  {0,7} {1,6} {2,9:C} {3,12:C} {4,9:C} {5,12:C} {6,12} {7,10:P}",
                     asset.Security.Ticker,
+                    asset.Units,
+                    asset.BookPrice,
+                    asset.BookCost,
                     asset.LastPrice,
-                    dividendEntry,
                     asset.MarketValue,
+                    dividendEntry,
                     currentAllocation);
             }
 
