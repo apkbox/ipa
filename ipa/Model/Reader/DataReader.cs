@@ -50,7 +50,7 @@ namespace Ipa.Model.Reader
                 var sp = new SimulationParameters
                              {
                                  SimulationId = spr.SimulationId,
-                                 ModelPortfolioModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
+                                 ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
                                  InitialPortfolio = this.GetPortfolio(spr.PortfolioId),
                                  InceptionDate = spr.InceptionDate,
                                  StopDate = spr.StopDate ?? DateTime.Today,

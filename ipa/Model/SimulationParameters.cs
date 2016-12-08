@@ -27,7 +27,7 @@ namespace Ipa.Model
         /// <summary>
         /// Gets or sets portfolio model to follow.
         /// </summary>
-        public ModelPortfolio ModelPortfolioModelPortfolio { get; set; }
+        public ModelPortfolio ModelPortfolio { get; set; }
 
         public bool SetInitialBookCost { get; set; }
 

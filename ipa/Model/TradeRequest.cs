@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="TradeOrderModel.cs" company="Alex Kozlov">
+// <copyright file="TradeRequest.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
@@ -14,7 +14,7 @@ namespace Ipa.Model
     /// as the price of unit can move, but amount we want to transact for
     /// balancing purposes is expressed in money.
     /// </summary>
-    public class TradeOrder
+    public class TradeRequest
     {
         #region Public Properties
 

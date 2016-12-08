@@ -16,12 +16,12 @@ namespace Ipa.Model
         Continue, 
 
         /// <summary>
-        /// Rebalancing time arrived, but rebalancing was not required.
+        /// ScheduledStop time arrived, but rebalancing was not required.
         /// </summary>
         Hold,
 
         /// <summary>
-        /// Rebalancing was performed.
+        /// ScheduledStop was performed.
         /// </summary>
         Rebalanced
     }

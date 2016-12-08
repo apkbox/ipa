@@ -19,7 +19,7 @@ namespace Ipa.Model
     {
         #region Static Fields
 
-        private static ILog log = LogManager.GetLogger<MixedRebalancingStrategy>();
+        private static readonly ILog Log = LogManager.GetLogger<MixedRebalancingStrategy>();
 
         #endregion
 
@@ -27,7 +27,6 @@ namespace Ipa.Model
 
         public MixedRebalancingStrategy()
         {
-            this.Frequency = TimeSpan.FromDays(91);
             this.Threshold = 0.01m;
             this.TradingExpenseThreshold = 0.1m;
         }
@@ -53,13 +52,8 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public RebalancingCheckResult Check(TimeSpan elapsed, ModelPortfolio modelPortfolio, Portfolio portfolio)
+        public bool Check(ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
-            if (elapsed < this.Frequency)
-            {
-                return RebalancingCheckResult.Continue;
-            }
-
             foreach (var asset in portfolio.Holdings)
             {
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
@@ -71,8 +65,8 @@ namespace Ipa.Model
                     // so the portfolio needs to be rebalanced.
                     if (currentAllocation > 0)
                     {
-                        log.InfoFormat("Rebalancing required: non-model assets present.");
-                        return RebalancingCheckResult.Rebalanced;
+                        Log.InfoFormat("ScheduledStop required: non-model assets present.");
+                        return true;
                     }
 
                     continue;
@@ -83,30 +77,30 @@ namespace Ipa.Model
 
                 if (drift > this.Threshold)
                 {
-                    log.InfoFormat(
-                        "Rebalancing required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.",
+                    Log.InfoFormat(
+                        "ScheduledStop required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.",
                         modelAsset.Security.Ticker,
                         drift,
                         targetAllocation,
                         this.Threshold);
-                    return RebalancingCheckResult.Rebalanced;
+                    return true;
                 }
             }
 
-            return RebalancingCheckResult.Hold;
+            return false;
         }
 
-        public List<TradeOrder> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio)
+        public List<TradeRequest> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
-            log.InfoFormat("Rebalancing '{0}' using '{1}'", portfolio.Name, modelPortfolio.Name);
+            Log.InfoFormat("ScheduledStop '{0}' using '{1}'", portfolio.Name, modelPortfolio.Name);
 
-            var tradesList = new List<TradeOrder>();
+            var tradesList = new List<TradeRequest>();
 
             // Important: Note that rebalancing should use current or next available security price 
             // instead of last in order to be correct.
-            // This is because if rebalancing falls on non-trading days for certain securities, then
-            // the next opportunity to trade for rebalancing lies forward.
             {
+                // This is because if rebalancing falls on non-trading days for certain securities, then
+                // the next opportunity to trade for rebalancing lies forward.
                 // On the order side, the rebalancing should generate trades list only that will be executed
                 // by simulation, which then correct things.
                 // TODO: Do we need to make multiple iterations? First iteration excludes all assets that do not need
@@ -123,32 +117,31 @@ namespace Ipa.Model
             }
 
             // Make combined list of current holdings and model assets.
-            var assets =
-                modelPortfolio.Assets.Select(o => new Asset(o.Security)).ToDictionary(o => o.Security.Ticker);
-            log.InfoFormat("Model assets:");
+            var assets = modelPortfolio.Assets.Select(o => new Asset(o.Security)).ToDictionary(o => o.Security.Ticker);
+            Log.InfoFormat("Model assets:");
             foreach (var a in assets)
             {
-                log.InfoFormat("    {0}", a.Value.Security.Ticker);
+                Log.InfoFormat("    {0}", a.Value.Security.Ticker);
             }
 
             var holdings = portfolio.Holdings.ToDictionary(o => o.Security.Ticker);
-            log.InfoFormat("Holdings:");
+            Log.InfoFormat("Holdings:");
             foreach (var h in holdings)
             {
-                log.InfoFormat("    {0}", h.Value.Security.Ticker);
+                Log.InfoFormat("    {0}", h.Value.Security.Ticker);
                 assets[h.Key] = h.Value;
             }
 
             foreach (var asset in assets.Values)
             {
-                log.InfoFormat("Calculating {0}", asset.Security.Ticker);
+                Log.InfoFormat("Calculating {0}", asset.Security.Ticker);
 
                 var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 var targetAllocation = modelAsset == null ? 0 : modelAsset.Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
                 var drift = Math.Abs(targetAllocation - currentAllocation);
 
-                log.InfoFormat(
+                Log.InfoFormat(
                     "        current: {0:P}, target: {1:P}, drift: {2:P}",
                     currentAllocation,
                     targetAllocation,
@@ -157,7 +150,7 @@ namespace Ipa.Model
                 // Check if asset allocation deviated and skip if still within tolerance.
                 if (drift < this.Threshold)
                 {
-                    log.InfoFormat("        Below {0:P} threshold, skipping", this.Threshold);
+                    Log.InfoFormat("        Below {0:P} threshold, skipping", this.Threshold);
                     continue;
                 }
 
@@ -183,7 +176,7 @@ namespace Ipa.Model
                     }
                 }
 
-                log.InfoFormat("        Excess {0}", excess);
+                Log.InfoFormat("        Excess {0}", excess);
 
                 // Check if there is at least one unit to buy or sell.
                 // If amount is too small, skip it.
@@ -191,13 +184,13 @@ namespace Ipa.Model
                 // This could be tricky as if the last price exceeds few cents, that really cannot be used
                 if (Math.Abs(excess) < asset.LastPrice)
                 {
-                    log.InfoFormat("        Excess is less than last price, skipping");
+                    Log.InfoFormat("        Excess is less than last price, skipping");
                     continue;
                 }
 
                 if (excess != 0)
                 {
-                    tradesList.Add(new TradeOrder { Security = asset.Security, Amount = -excess });
+                    tradesList.Add(new TradeRequest { Security = asset.Security, Amount = -excess });
                 }
             }
 

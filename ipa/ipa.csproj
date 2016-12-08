@@ -64,11 +64,12 @@
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\ISchedule.cs" />
+    <Compile Include="Model\QuaterlySchedule.cs" />
     <Compile Include="Model\Reader\SecurityDividendRecord.cs" />
     <Compile Include="Model\RebalancingCheckResult.cs" />
     <Compile Include="ObjectDumper.cs" />
     <Compile Include="Model\Reader\DataReader.cs" />
-    <Compile Include="Model\SimulationState.cs" />
     <Compile Include="Model\Simulator.cs" />
     <Compile Include="Model\IRebalancingStrategy.cs" />
     <Compile Include="Model\MixedRebalancingStrategy.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="Model\FinSec.cs" />
     <Compile Include="Model\FinSecQuote.cs" />
     <Compile Include="Model\SimulationParameters.cs" />
-    <Compile Include="Model\TradeOrder.cs" />
+    <Compile Include="Model\TradeRequest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

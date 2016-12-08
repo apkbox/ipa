@@ -1,23 +1,21 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="IRebalancingStrategy.cs" company="Alex Kozlov">
+// <copyright file="ISchedule.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the IRebalancingStrategy type.
+//   Defines the ISchedule type.
 // </summary>
 // --------------------------------------------------------------------------------
 
 namespace Ipa.Model
 {
-    using System.Collections.Generic;
+    using System;
 
-    public interface IRebalancingStrategy
+    public interface ISchedule
     {
         #region Public Methods and Operators
 
-        bool Check(ModelPortfolio modelPortfolio, Portfolio portfolio);
-
-        List<TradeRequest> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio);
+        bool IsArrived(DateTime date);
 
         #endregion
     }
