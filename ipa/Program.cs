@@ -20,25 +20,36 @@ namespace Ipa
 
     internal class Program
     {
+        private const int DefaultWindowsWidth = 140;
+        private const int DefaultWindowsHeight = 60;
+
+
         #region Methods
 
         private static void Main(string[] args)
         {
-            Console.BufferWidth = 140;
-            Console.BufferHeight = 3000;
-            Console.WindowWidth = 150;
-            Console.WindowHeight = 60;
-
             var logger = LogManager.GetLogger<Program>();
             logger.Info("Started");
-            var reader = new DataReader();
-            var simParams = reader.BuildDb();
-            new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Lousy"));
-            //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Garth1_Ex"));
-            //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Garth1_CASH_20k"));
-            //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "RBC_ETF_CASH_20k"));
-            //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "XUS_VSB_CASH_20k"));
 
+            try {
+                Console.BufferWidth = 140;
+                Console.BufferHeight = 3000;
+                Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth ?
+                    Console.LargestWindowWidth : DefaultWindowsWidth;
+                Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight ?
+                    Console.LargestWindowHeight : DefaultWindowsHeight;
+
+                var reader = new DataReader();
+                var simParams = reader.BuildDb();
+                new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Lousy"));
+                //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Garth1_Ex"));
+                //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "Garth1_CASH_20k"));
+                //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "RBC_ETF_CASH_20k"));
+                //new Simulator().SimulatePortfolio(simParams.First(o => o.SimulationId == "XUS_VSB_CASH_20k"));
+            }
+            catch(Exception ex) {
+                logger.Fatal(ex);
+            }
             logger.Info("Exiting");
             // Console.ReadKey();
         }
