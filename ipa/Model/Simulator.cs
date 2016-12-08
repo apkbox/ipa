@@ -108,8 +108,8 @@ namespace Ipa.Model
             }
 
             log.Info(string.Empty);
-            log.Info("Ticker  Unts  Book Pr    Book Cost Mar Price    Mar Value     Dividends   MgmCost     Alloc");
-            log.Info("===========================================================================================");
+            log.Info("Ticker  Unts   Book Pr    Book Cost Mar Price    Mar Value    Dividends   MgmCost      Alloc");
+            log.Info("============================================================================================");
             foreach (var asset in this.Portfolio.Holdings)
             {
                 var currentAllocation = asset.MarketValue / this.Portfolio.MarketValue;
