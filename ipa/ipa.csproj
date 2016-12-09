@@ -68,6 +68,7 @@
     <Compile Include="Model\QuaterlySchedule.cs" />
     <Compile Include="Model\Reader\SecurityDividendRecord.cs" />
     <Compile Include="Model\RebalancingCheckResult.cs" />
+    <Compile Include="Model\TradeOrder.cs" />
     <Compile Include="ObjectDumper.cs" />
     <Compile Include="Model\Reader\DataReader.cs" />
     <Compile Include="Model\Simulator.cs" />
