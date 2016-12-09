@@ -17,7 +17,7 @@ namespace Ipa.Model
 
         bool Check(ModelPortfolio modelPortfolio, Portfolio portfolio);
 
-        List<TradeRequest> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio);
+        List<TradePlanItem> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio);
 
         #endregion
     }

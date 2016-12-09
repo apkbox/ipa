@@ -28,11 +28,9 @@ namespace Ipa.Model
 
         private readonly ISchedule schedule = new QuaterlySchedule();
 
-        private bool isStoppedBySchedule = false;
+        private bool isResumed;
 
         private SimulationParameters simParams;
-
-        private IList<TradeRequest> tradeOrders;
 
         #endregion
 
@@ -60,11 +58,17 @@ namespace Ipa.Model
             if (parameters.ForceInitialRebalancing)
             {
                 Log.InfoFormat("Performing initial rebalancing on {0:D}", this.CurrentDate);
-                this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
-                    parameters.ModelPortfolio,
-                    this.Portfolio);
+                this.TradePlan = this.Portfolio.RebalancingStrategy.Rebalance(parameters.ModelPortfolio, this.Portfolio);
             }
         }
+
+        #endregion
+
+        #region Public Properties
+
+        public IList<TradePlanItem> TradePlan { get; set; }
+
+        public TradingQueue TradingQueue { get; private set; }
 
         #endregion
 
@@ -85,7 +89,7 @@ namespace Ipa.Model
             if (result)
             {
                 Log.InfoFormat("Performing rebalancing on {0:D}", this.CurrentDate);
-                this.tradeOrders = this.Portfolio.RebalancingStrategy.Rebalance(
+                this.TradePlan = this.Portfolio.RebalancingStrategy.Rebalance(
                     this.simParams.ModelPortfolio,
                     this.Portfolio);
             }
@@ -139,18 +143,29 @@ namespace Ipa.Model
         {
             while (this.CurrentDate <= this.simParams.StopDate)
             {
-                if (!this.isStoppedBySchedule)
+                if (!this.isResumed)
                 {
+                    this.TradingQueue = new TradingQueue();
+                    var cashEntry = this.Portfolio.GetCashEntry();
+                    this.TradingQueue.Cash = cashEntry.BookCost;
+                    this.TradingQueue.TransactionFee = this.simParams.TransactionFee;
+
+                    this.TradePlan = new List<TradePlanItem>();
+
                     if (this.schedule.IsArrived(this.CurrentDate))
                     {
-                        this.isStoppedBySchedule = true;
+                        this.isResumed = true;
                         return true;
                     }
                 }
 
-                this.isStoppedBySchedule = false;
+                this.isResumed = false;
 
-                this.SimulateIntraday(this.simParams);
+                this.PrepareTradeOrders();
+                this.ExecuteTradeOrders(this.TradingQueue);
+                this.SettleTrades();
+
+                this.UpdateHoldingsMarketValue();
 
                 this.CurrentDate = this.CurrentDate.AddDays(1);
             }
@@ -162,114 +177,52 @@ namespace Ipa.Model
 
         #region Methods
 
-        private void ExecuteTradeOrders()
+        private void ExecuteTradeOrders(TradingQueue request)
         {
             Log.InfoFormat("Executing trade orders on {0:D}", this.CurrentDate);
 
-            var cashPosition = this.Portfolio.GetCashPosition();
-            var cash = cashPosition.BookCost;
+            var cash = request.Cash;
 
-            Log.InfoFormat("Cash position: {0:C}", cash);
+            Log.InfoFormat("Cash before trades: {0:C}", cash);
 
-            foreach (var to in this.tradeOrders)
+            foreach (var order in request.TradeOrders.OrderBy(o => o.Units))
             {
-                if (to.Amount == 0)
+                if (order.Units == 0)
                 {
-                    Log.FatalFormat("No op trade order for {0}, Amount: {1:C}", to.Security.Ticker, to.Amount);
+                    Log.FatalFormat("No op trade order for {0}, Units: {1}", order.Security.Ticker, order.Units);
                     Debug.Fail("No op trade order");
                 }
 
-                var priceEntry = to.Security.GetPriceEntry(this.CurrentDate);
-                if (priceEntry == null)
+                var quote = order.Security.GetPriceEntry(this.CurrentDate);
+                if (quote == null)
                 {
-                    Log.FatalFormat("Price for {0} on {1:D} is not available", to.Security.Ticker, this.CurrentDate);
-                    Debug.Fail("Price not available");
+                    Log.FatalFormat("Quote for {0} on {1:D} is not available", order.Security.Ticker, this.CurrentDate);
+                    Debug.Fail("Quote is not available");
                 }
 
-                var spotPrice = priceEntry.AveragePrice;
+                // TODO: Use selector object to pick the transaction price - high, low, open, close or average.
+                var spotPrice = order.Price ?? quote.AveragePrice;
 
-                var fee = to.Amount < 0
-                              ? (to.Security.SellTransactionFee ?? this.Portfolio.TransactionFee)
-                              : (to.Security.BuyTransactionFee ?? this.Portfolio.TransactionFee);
+                var fee = order.TransactionFee
+                          ?? (order.Units < 0
+                                  ? (order.Security.SellTransactionFee ?? request.TransactionFee)
+                                  : (order.Security.BuyTransactionFee ?? request.TransactionFee));
 
-                var units =
-                    Math.Abs(
-                        to.Security.AllowsPartialShares ? to.Amount / spotPrice : Math.Truncate(to.Amount / spotPrice));
-
-                Log.InfoFormat(
-                    "Projection for {0} at {1:C} for {2} units. Fee {3:C}",
-                    to.Security.Ticker,
-                    spotPrice,
-                    units,
-                    fee);
-
-                var asset = this.Portfolio.Holdings.FirstOrDefault(o => o.Security.Ticker == to.Security.Ticker);
-                if (asset == null)
+                var unitsCost = order.Units * spotPrice;
+                var units = order.UnitsOwned + order.Units;
+                if (units < 0)
                 {
-                    Log.Info("Asset currently not owned.");
-
-                    if (to.Amount < 0)
-                    {
-                        Log.Fatal("Attempt to sell asset not being own.");
-                        Debug.Fail("Attempt to sell asset not being own.");
-                    }
-
-                    Log.InfoFormat("Creating portfolio position for {0}", to.Security.Ticker);
-                    asset = new Asset(to.Security);
-                    this.Portfolio.Holdings.Add(asset);
+                    Log.ErrorFormat("Selling more units ({0}) than owned ({1})", order.Units, order.UnitsOwned);
                 }
 
-                // Check if we try to sell more units than own
-                if (to.Amount < 0 && asset.Units < units)
-                {
-                    Log.InfoFormat("Selling more units ({0}) than owned ({1})", units, asset.Units);
-                    units = asset.Units;
-                }
+                cash += unitsCost;
+                cash -= fee;
 
-                var tradingBalance = units * spotPrice;
-                Log.InfoFormat("Final price tag {0:C} for {1} units at {2:C}", tradingBalance, units, spotPrice);
-
-                if (to.Amount < 0)
-                {
-                    asset.Units -= units;
-                    asset.BookCost -= tradingBalance - fee;
-                }
-                else
-                {
-                    asset.Units += units;
-                    asset.BookCost += tradingBalance + fee;
-                }
-
-                Log.InfoFormat("{0} units and {1:C} book cost after adjustment", asset.Units, asset.BookCost);
-
-                asset.ManagementCost += fee;
-                Log.InfoFormat("Total of management fees {0:C}", asset.ManagementCost);
-
-                Debug.Assert(asset.Units >= 0, "Negative units");
-
-                // HACK: Do not remove as it removes management cost
-                if (false && asset.Units == 0 && asset.Security.FixedPrice == null)
-                {
-                    Log.InfoFormat("All units sold. Removing position from portfolio.");
-                    this.Portfolio.Holdings.Remove(asset);
-                }
-
-                // Update cash position (TODO: Dang! should ignore it for cash position!)
-                // HACK: Figure that security is actual cash if it has fixed price.
-                // In this case do not update running cash balance.
-                if (to.Security.FixedPrice == null)
-                {
-                    if (to.Amount < 0)
-                    {
-                        cash += tradingBalance - fee;
-                    }
-                    else
-                    {
-                        cash -= tradingBalance + fee;
-                    }
-
-                    Log.InfoFormat("Cash position after trade {0:C}", cash);
-                }
+                order.UnitsOwned = units;
+                order.Price = spotPrice;
+                order.TransactionFee = fee;
+                order.TotalCost = unitsCost;
+                order.TotalCost -= fee;
             }
 
             if (cash < 0)
@@ -278,22 +231,132 @@ namespace Ipa.Model
                 Debug.Fail("Negative cash after executing trade orders.");
             }
 
-            cashPosition.BookCost = cash;
-            cashPosition.MarketValue = cashPosition.BookCost;
-            cashPosition.Units = cashPosition.BookCost / cashPosition.LastPrice;
-
+            request.Cash = cash;
             Log.InfoFormat("Cash after all trades {0:C}", cash);
         }
 
-        private void SimulateIntraday(SimulationParameters parameters)
+        private void PrepareTradeOrders()
         {
-            if (this.tradeOrders != null)
+            Log.InfoFormat("Preparing trade orders on {0:D}", this.CurrentDate);
+
+            foreach (var item in this.TradePlan)
             {
-                this.ExecuteTradeOrders();
-                this.tradeOrders = null;
+                // Skip cash
+                if (item.Security.FixedPrice != null)
+                {
+                    continue;
+                }
+
+                if (item.Amount == 0)
+                {
+                    Log.FatalFormat("No op trade plan item for {0}, Amount: {1:C}", item.Security.Ticker, item.Amount);
+                    Debug.Fail("No op trade plan item");
+                }
+
+                var priceEntry = item.Security.GetPriceEntry(this.CurrentDate);
+                if (priceEntry == null)
+                {
+                    Log.FatalFormat("Price for {0} on {1:D} is not available", item.Security.Ticker, this.CurrentDate);
+                    Debug.Fail("Price not available");
+                }
+
+                var spotPrice = priceEntry.AveragePrice;
+
+                var fee = item.Amount < 0
+                              ? (item.Security.SellTransactionFee ?? this.Portfolio.TransactionFee)
+                              : (item.Security.BuyTransactionFee ?? this.Portfolio.TransactionFee);
+
+                var units = item.Security.AllowsPartialShares
+                                ? item.Amount / spotPrice
+                                : Math.Truncate(item.Amount / spotPrice);
+
+                Log.InfoFormat(
+                    "Projection for {0} at {1:C} for {2} units. Fee {3:C}",
+                    item.Security.Ticker,
+                    spotPrice,
+                    units,
+                    fee);
+
+                var asset = this.Portfolio.Holdings.FirstOrDefault(o => o.Security.Ticker == item.Security.Ticker);
+                if (asset == null)
+                {
+                    Log.Info("Asset currently not owned.");
+
+                    if (item.Amount < 0)
+                    {
+                        Log.Fatal("Attempt to sell asset not being own.");
+                        Debug.Fail("Attempt to sell asset not being own.");
+                    }
+                }
+                else
+                {
+                    // Check if we try to sell more units than own
+                    if (item.Amount < 0 && asset.Units < units)
+                    {
+                        Log.InfoFormat("Selling more units ({0}) than owned ({1})", units, asset.Units);
+                        units = asset.Units;
+                    }
+                }
+
+                var tradingBalance = units * spotPrice;
+                Log.InfoFormat("Final price tag {0:C} for {1} units at {2:C}", tradingBalance, units, spotPrice);
+
+                this.TradingQueue.TradeOrders.Add(
+                    new TradeOrder
+                        {
+                            Security = item.Security,
+                            Units = units,
+                            UnitsOwned = asset == null ? 0 : asset.Units,
+                        });
+            }
+        }
+
+        private void SettleTrades()
+        {
+            var cashEntry = this.Portfolio.GetCashEntry();
+            var cash = cashEntry.BookCost;
+
+            Log.InfoFormat("Cash available: {0:C}", cash);
+
+            foreach (var order in this.TradingQueue.TradeOrders)
+            {
+                var asset = this.Portfolio.Holdings.FirstOrDefault(o => o.Security.Ticker == order.Security.Ticker);
+                if (asset == null)
+                {
+                    asset = new Asset(order.Security)
+                                {
+                                    Units = order.UnitsOwned,
+                                    BookCost = order.TotalCost,
+                                    ManagementCost = (decimal)order.TransactionFee
+                                };
+                    this.Portfolio.Holdings.Add(asset);
+                }
+                else
+                {
+                    asset.Units = order.UnitsOwned;
+                    asset.BookCost += order.TotalCost;
+                    asset.ManagementCost += (decimal)order.TransactionFee;
+                }
+
+                // Log.InfoFormat("{0} units and {1:C} book cost after adjustment", asset.Units, asset.BookCost);
+
+                // Log.InfoFormat("Total of management fees {0:C}", asset.ManagementCost);
+                Debug.Assert(asset.Units >= 0, "Negative units");
             }
 
-            this.UpdateHoldingsMarketValue();
+            cash = this.TradingQueue.Cash;
+
+            if (cash < 0)
+            {
+                Log.Fatal("Negative cash after executing trade orders.");
+                Debug.Fail("Negative cash after executing trade orders.");
+            }
+
+            cashEntry.BookCost = cash;
+            cashEntry.MarketValue = cashEntry.BookCost;
+            cashEntry.Units = cashEntry.BookCost / cashEntry.LastPrice;
+
+            Log.InfoFormat("Cash after all trades {0:C}", cash);
         }
 
         private void UpdateHoldingsInitialBookCost()
@@ -320,7 +383,7 @@ namespace Ipa.Model
         {
             Log.InfoFormat("Updating portfolio market value on {0:D}", this.CurrentDate);
 
-            var cashPosition = this.Portfolio.GetCashPosition();
+            var cashPosition = this.Portfolio.GetCashEntry();
             var cash = cashPosition.BookCost;
 
             // Update current market value

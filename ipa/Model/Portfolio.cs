@@ -61,7 +61,7 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public Asset GetCashPosition()
+        public Asset GetCashEntry()
         {
             return this.Holdings.FirstOrDefault(o => o.Security.Ticker == "$CAD");
         }

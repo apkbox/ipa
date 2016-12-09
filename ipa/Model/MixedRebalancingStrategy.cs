@@ -90,11 +90,11 @@ namespace Ipa.Model
             return false;
         }
 
-        public List<TradeRequest> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio)
+        public List<TradePlanItem> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
             Log.InfoFormat("ScheduledStop '{0}' using '{1}'", portfolio.Name, modelPortfolio.Name);
 
-            var tradesList = new List<TradeRequest>();
+            var tradesList = new List<TradePlanItem>();
 
             // Important: Note that rebalancing should use current or next available security price 
             // instead of last in order to be correct.
@@ -190,7 +190,7 @@ namespace Ipa.Model
 
                 if (excess != 0)
                 {
-                    tradesList.Add(new TradeRequest { Security = asset.Security, Amount = -excess });
+                    tradesList.Add(new TradePlanItem { Security = asset.Security, Amount = -excess });
                 }
             }
 
