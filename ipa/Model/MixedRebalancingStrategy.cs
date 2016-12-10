@@ -73,9 +73,9 @@ namespace Ipa.Model
                 }
 
                 var targetAllocation = modelAsset.Allocation;
-                var drift = Math.Abs(targetAllocation - currentAllocation);
+                var drift = currentAllocation - targetAllocation;
 
-                if (drift > this.Threshold)
+                if (Math.Abs(drift) > this.Threshold)
                 {
                     Log.InfoFormat(
                         "ScheduledStop required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.",
@@ -139,7 +139,7 @@ namespace Ipa.Model
                 var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 var targetAllocation = modelAsset == null ? 0 : modelAsset.Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
-                var drift = Math.Abs(targetAllocation - currentAllocation);
+                var drift = currentAllocation - targetAllocation;
 
                 Log.InfoFormat(
                     "        current: {0:P}, target: {1:P}, drift: {2:P}",
@@ -148,7 +148,7 @@ namespace Ipa.Model
                     drift);
 
                 // Check if asset allocation deviated and skip if still within tolerance.
-                if (drift < this.Threshold)
+                if (Math.Abs(drift) < this.Threshold)
                 {
                     Log.InfoFormat("        Below {0:P} threshold, skipping", this.Threshold);
                     continue;
@@ -164,7 +164,8 @@ namespace Ipa.Model
                 // Adjust excess for transaction costs
                 if (excess > 0)
                 {
-                    var fee = asset.Security.SellTransactionFee ?? portfolio.TransactionFee;
+                    // TODO: Ignore transaction fee for cash
+                    var fee = portfolio.TransactionFee;
                     if (fee / excess > this.TradingExpenseThreshold)
                     {
                         excess = 0;

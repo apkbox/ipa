@@ -1,14 +1,14 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="ModelPortfolioAllocation.cs" company="Alex Kozlov">
+// <copyright file="ModelPortfolioComponent.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the ModelPortfolioAsset type.
+//   Defines the ModelPortfolioComponent type.
 // </summary>
 // --------------------------------------------------------------------------------
 namespace Ipa.Model
 {
-    public class ModelPortfolioAllocation
+    public class ModelPortfolioComponent
     {
         #region Public Properties
 

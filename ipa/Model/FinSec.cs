@@ -16,8 +16,10 @@ namespace Ipa.Model
     {
         #region Constructors and Destructors
 
-        public FinSec()
+        public FinSec(string ticker, bool isCash = false)
         {
+            this.Ticker = ticker;
+            this.IsCash = isCash;
             this.Quotes = new List<FinSecQuote>();
             this.Distributions = new List<FinSecDistribution>();
         }
@@ -28,22 +30,21 @@ namespace Ipa.Model
 
         public bool AllowsPartialShares { get; set; }
 
-        public decimal? BuyTransactionFee { get; set; }
-
         public IList<FinSecDistribution> Distributions { get; private set; }
 
         /// <summary>
-        /// Gets or sets fixed price.
+        /// Gets or sets fixed price of security. For cash this is the smallest
+        /// currency denomination (a cent for example).
         /// </summary>
         public decimal? FixedPrice { get; set; }
+
+        public bool IsCash { get; private set; }
 
         public string Name { get; set; }
 
         public IList<FinSecQuote> Quotes { get; private set; }
 
-        public decimal? SellTransactionFee { get; set; }
-
-        public string Ticker { get; set; }
+        public string Ticker { get; private set; }
 
         #endregion
 
@@ -58,28 +59,53 @@ namespace Ipa.Model
             return dividentPaymentEntry == null ? 0m : dividentPaymentEntry.Amount;
         }
 
-        public FinSecQuote GetLastPriceEntry(DateTime date)
+        public FinSecQuote GetLastQuote(DateTime date)
         {
-            return this.FixedPriceOverride(date) ?? (from entry in this.Quotes
+            return this.FixedQuoteOverride(date) ?? (from entry in this.Quotes
                                                      orderby entry.TradingDayDate descending
                                                      where entry.TradingDayDate <= date
                                                      select entry).FirstOrDefault();
         }
 
-        public FinSecQuote GetPriceEntry(DateTime date)
+        /// <summary>
+        /// Gets quote for the specified day or next available in the future
+        /// if security was not traded on the specified day.
+        /// </summary>
+        /// <param name="date">
+        /// Trading day.
+        /// </param>
+        /// <returns>
+        /// The <see cref="FinSecQuote"/> the the specified day or closest
+        /// day in the future.
+        /// </returns>
+        public FinSecQuote GetQuote(DateTime date)
         {
-            return this.FixedPriceOverride(date)
+            return this.FixedQuoteOverride(date)
                    ?? (from entry in this.Quotes
                        orderby entry.TradingDayDate ascending
                        where entry.TradingDayDate >= date
                        select entry).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Gets whether the security was traded at the specified date.
+        /// </summary>
+        /// <param name="date">
+        /// Trade day.
+        /// </param>
+        /// <returns>
+        /// True if security was traded.
+        /// </returns>
+        public bool IsTraded(DateTime date)
+        {
+            return this.Quotes.Any(o => o.TradingDayDate == date);
+        }
+
         #endregion
 
         #region Methods
 
-        private FinSecQuote FixedPriceOverride(DateTime date)
+        private FinSecQuote FixedQuoteOverride(DateTime date)
         {
             if (this.FixedPrice == null)
             {

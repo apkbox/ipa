@@ -1,16 +1,33 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="PortfolioAssetModel.cs" company="Alex Kozlov">
+// <copyright file="Asset.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
 //   Defines the PortfolioAssetModel type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model
 {
+    using System.Diagnostics;
+
+    using Common.Logging;
+
     public class Asset
     {
+        #region Static Fields
+
+        private static readonly ILog Log = LogManager.GetLogger<Asset>();
+
+        #endregion
+
+        #region Fields
+
+        private decimal lastPrice;
+
+        private decimal units;
+
+        #endregion
+
         #region Constructors and Destructors
 
         public Asset(FinSec security)
@@ -20,11 +37,10 @@ namespace Ipa.Model
 
         public Asset(Asset other)
         {
-            this.BookCost = other.BookCost;
+            this.BookValue = other.BookValue;
             this.DividendsPaid = other.DividendsPaid;
             this.LastPrice = other.LastPrice;
             this.ManagementCost = other.ManagementCost;
-            this.MarketValue = other.MarketValue;
             this.Security = other.Security;
             this.Units = other.Units;
         }
@@ -32,11 +48,6 @@ namespace Ipa.Model
         #endregion
 
         #region Public Properties
-
-        /// <summary>
-        /// Gets or sets book cost of the asset.
-        /// </summary>
-        public decimal BookCost { get; set; }
 
         public decimal BookPrice
         {
@@ -47,19 +58,59 @@ namespace Ipa.Model
                     return 0;
                 }
 
-                return this.BookCost / this.Units;
+                return this.BookValue / this.Units;
             }
         }
+
+        /// <summary>
+        /// Gets or sets book cost of the asset.
+        /// </summary>
+        public decimal BookValue { get; set; }
 
         /// <summary>
         /// Gets or sets total dividends paid for this asset.
         /// </summary>
         public decimal DividendsPaid { get; set; }
 
+        public bool IsCash
+        {
+            get
+            {
+                return this.Security.IsCash;
+            }
+        }
+
         /// <summary>
         /// Gets or sets last price of the security.
         /// </summary>
-        public decimal LastPrice { get; set; }
+        public decimal LastPrice
+        {
+            get
+            {
+                if (this.IsCash)
+                {
+                    if (this.Security.FixedPrice == null || this.Security.FixedPrice == 0)
+                    {
+                        Log.WarnFormat("Cash asset {0} references currency with zero fixed price", this.Security.Ticker);
+                    }
+
+                    return this.Security.FixedPrice ?? 0.01m;
+                }
+
+                return this.lastPrice;
+            }
+
+            set
+            {
+                if (this.IsCash)
+                {
+                    Debug.Assert(!this.IsCash, "Cannot set last price for cash asset");
+                    Log.ErrorFormat("Attempt to set last price for cash asset {0}.", this.Security.Ticker);
+                }
+
+                this.lastPrice = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets total management cost.
@@ -67,9 +118,20 @@ namespace Ipa.Model
         public decimal ManagementCost { get; set; }
 
         /// <summary>
-        /// Gets or sets market value of the asset.
+        /// Gets market value of the asset.
         /// </summary>
-        public decimal MarketValue { get; set; }
+        public decimal MarketValue
+        {
+            get
+            {
+                if (this.IsCash)
+                {
+                    return this.BookValue;
+                }
+
+                return this.LastPrice * this.Units;
+            }
+        }
 
         /// <summary>
         /// Gets or sets security of the asset.
@@ -79,7 +141,33 @@ namespace Ipa.Model
         /// <summary>
         /// Gets or sets number of units held in portfolio.
         /// </summary>
-        public decimal Units { get; set; }
+        public decimal Units
+        {
+            get
+            {
+                if (this.IsCash)
+                {
+                    if (this.Security.FixedPrice == null || this.Security.FixedPrice == 0)
+                    {
+                        Log.WarnFormat("Cash asset {0} references currency with zero fixed price", this.Security.Ticker);
+                    }
+
+                    return this.BookValue / (this.Security.FixedPrice ?? 0.01m);
+                }
+
+                return this.units;
+            }
+
+            set
+            {
+                if (this.IsCash)
+                {
+                    Log.WarnFormat("Attempt to set units for cash asset {0}. Ignored.", this.Security.Ticker);
+                }
+
+                this.units = value;
+            }
+        }
 
         #endregion
     }

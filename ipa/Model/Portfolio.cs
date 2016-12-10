@@ -36,6 +36,14 @@ namespace Ipa.Model
 
         #region Public Properties
 
+        public decimal BookValue
+        {
+            get
+            {
+                return this.Holdings.Sum(o => o.BookValue);
+            }
+        }
+
         public IList<Asset> Holdings { get; private set; }
 
         public DateTime LastRebalancingDate { get; set; }
@@ -61,9 +69,9 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public Asset GetCashEntry()
+        public Asset GetCashAsset(string currency)
         {
-            return this.Holdings.FirstOrDefault(o => o.Security.Ticker == "$CAD");
+            return this.Holdings.FirstOrDefault(o => o.Security.Ticker == currency && o.Security.IsCash);
         }
 
         #endregion

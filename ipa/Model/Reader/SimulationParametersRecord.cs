@@ -24,7 +24,6 @@ namespace Ipa.Model.Reader
             this.Map(p => p.PortfolioId);
             this.Map(p => p.InceptionDate);
             this.Map(p => p.StopDate).Default(null);
-            this.Map(p => p.TransactionFee);
             this.Map(p => p.ForceInitialRebalancing);
             this.Map(p => p.SetInitialBookCost);
         }
@@ -46,8 +45,6 @@ namespace Ipa.Model.Reader
         public string SimulationId { get; set; }
 
         public DateTime? StopDate { get; set; }
-
-        public decimal TransactionFee { get; set; }
 
         #endregion
     }

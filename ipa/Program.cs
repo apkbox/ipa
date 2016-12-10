@@ -6,7 +6,6 @@
 //   Defines the Program type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa
 {
     using System;
@@ -35,43 +34,56 @@ namespace Ipa
             var logger = LogManager.GetLogger<Program>();
             logger.Info("Started");
 
-            try
+            if (Debugger.IsAttached)
             {
-                Console.BufferWidth = 140;
-                Console.BufferHeight = 3000;
-                Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth
-                                          ? Console.LargestWindowWidth
-                                          : DefaultWindowsWidth;
-                Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight
-                                           ? Console.LargestWindowHeight
-                                           : DefaultWindowsHeight;
-
-                var reader = new DataReader();
-                var simParams = reader.BuildDb();
-
-                const string SimId = "Other";
-                // const string SimId = "Lousy";
-                // const string SimId = "Garth1_Ex";
-                // const string SimId = "Garth1_CASH_20k";
-                // const string SimId = "RBC_ETF_CASH_20k";
-                // const string SimId = "XUS_VSB_CASH_20k";
-                var sim = new Simulator(simParams.First(o => o.SimulationId == SimId));
-                while (sim.ResumeSimulation())
-                {
-                    sim.DefaultScheduleHandler();
-                }
-
-                sim.PrintPortfolioStats();
+                new Program().Run();
             }
-            catch (Exception ex)
+            else
             {
-                logger.Fatal(ex);
-                Debug.WriteLine(ex);
+                try
+                {
+                    new Program().Run();
+                }
+                catch (Exception ex)
+                {
+                    logger.Fatal(ex);
+                    Debug.WriteLine(ex);
+                }
             }
 
             logger.Info("Exiting");
 
             // Console.ReadKey();
+        }
+
+        private void Run()
+        {
+            Console.BufferWidth = 140;
+            Console.BufferHeight = 3000;
+            Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth
+                                      ? Console.LargestWindowWidth
+                                      : DefaultWindowsWidth;
+            Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight
+                                       ? Console.LargestWindowHeight
+                                       : DefaultWindowsHeight;
+
+            var reader = new DataReader();
+            var simParams = reader.BuildDb();
+
+            const string SimId = "Other";
+
+            // const string SimId = "Lousy";
+            // const string SimId = "Garth1_Ex";
+            // const string SimId = "Garth1_CASH_20k";
+            // const string SimId = "RBC_ETF_CASH_20k";
+            // const string SimId = "XUS_VSB_CASH_20k";
+            var sim = new Simulator(simParams.First(o => o.SimulationId == SimId));
+            while (sim.ResumeSimulation())
+            {
+                sim.DefaultScheduleHandler();
+            }
+
+            sim.PrintPortfolioStats();
         }
 
         #endregion

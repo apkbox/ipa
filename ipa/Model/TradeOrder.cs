@@ -17,13 +17,7 @@ namespace Ipa.Model
 
         public FinSec Security { get; set; }
 
-        public decimal TotalCost { get; set; }
-
-        public decimal? TransactionFee { get; set; }
-
         public decimal Units { get; set; }
-
-        public decimal UnitsOwned { get; set; }
 
         #endregion
     }

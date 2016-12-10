@@ -17,14 +17,14 @@ namespace Ipa.Model
 
         public ModelPortfolio()
         {
-            this.Assets = new List<ModelPortfolioAllocation>();
+            this.Assets = new List<ModelPortfolioComponent>();
         }
 
         #endregion
 
         #region Public Properties
 
-        public IList<ModelPortfolioAllocation> Assets { get; private set; }
+        public IList<ModelPortfolioComponent> Assets { get; private set; }
 
         public string Name { get; set; }
 
@@ -32,7 +32,7 @@ namespace Ipa.Model
 
         #region Public Methods and Operators
 
-        public ModelPortfolioAllocation GetAsset(string ticker)
+        public ModelPortfolioComponent GetAsset(string ticker)
         {
             return this.Assets.FirstOrDefault(o => o.Security.Ticker == ticker);
         }

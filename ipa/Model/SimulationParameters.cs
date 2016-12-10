@@ -38,11 +38,6 @@ namespace Ipa.Model
         /// </summary>
         public DateTime StopDate { get; set; }
 
-        /// <summary>
-        /// Gets or sets default transaction fee.
-        /// </summary>
-        public decimal TransactionFee { get; set; }
-
         #endregion
     }
 }

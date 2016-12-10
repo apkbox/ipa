@@ -6,7 +6,6 @@
 //   Defines the DataReader type.
 // </summary>
 // --------------------------------------------------------------------------------
-
 namespace Ipa.Model.Reader
 {
     using System;
@@ -49,13 +48,12 @@ namespace Ipa.Model.Reader
             {
                 var sp = new SimulationParameters
                              {
-                                 SimulationId = spr.SimulationId,
-                                 ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
-                                 InitialPortfolio = this.GetPortfolio(spr.PortfolioId),
-                                 InceptionDate = spr.InceptionDate,
-                                 StopDate = spr.StopDate ?? DateTime.Today,
-                                 TransactionFee = spr.TransactionFee,
-                                 ForceInitialRebalancing = spr.ForceInitialRebalancing,
+                                 SimulationId = spr.SimulationId, 
+                                 ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId), 
+                                 InitialPortfolio = this.GetPortfolio(spr.PortfolioId), 
+                                 InceptionDate = spr.InceptionDate, 
+                                 StopDate = spr.StopDate ?? DateTime.Today, 
+                                 ForceInitialRebalancing = spr.ForceInitialRebalancing, 
                                  SetInitialBookCost = spr.SetInitialBookCost
                              };
                 this.simulationParameters.Add(sp);
@@ -78,9 +76,9 @@ namespace Ipa.Model.Reader
                     var mpm = new ModelPortfolio { Name = record.Value.Name };
                     foreach (var ar in record.Value.Assets)
                     {
-                        var asset = new ModelPortfolioAllocation
+                        var asset = new ModelPortfolioComponent
                                         {
-                                            Security = this.GetSecurity(ar.Value.Ticker),
+                                            Security = this.GetSecurity(ar.Value.Ticker), 
                                             Allocation = ar.Value.Allocation
                                         };
                         mpm.Assets.Add(asset);
@@ -102,16 +100,15 @@ namespace Ipa.Model.Reader
                 {
                     var pm = new Portfolio
                                  {
-                                     Name = record.Value.Name,
+                                     Name = record.Value.Name, 
                                      TransactionFee = record.Value.TransactionFee
                                  };
                     foreach (var hr in record.Value.Holdings)
                     {
                         var asset = new Asset(this.GetSecurity(hr.Value.Ticker))
                                         {
-                                            Units = hr.Value.Units,
-                                            BookCost =
-                                                hr.Value.BookCost
+                                            Units = hr.Value.Units, 
+                                            BookValue = hr.Value.BookCost
                                         };
                         pm.Holdings.Add(asset);
                     }
@@ -130,14 +127,11 @@ namespace Ipa.Model.Reader
                 this.ReadSecurities();
                 foreach (var record in this.securityRecords)
                 {
-                    var sm = new FinSec
+                    var sm = new FinSec(record.Value.Ticker, record.Value.IsCurrency)
                                  {
-                                     Ticker = record.Value.Ticker,
-                                     Name = record.Value.Name,
-                                     AllowsPartialShares = record.Value.PartialShares,
-                                     FixedPrice = record.Value.FixedPrice,
-                                     BuyTransactionFee = record.Value.BuyFee,
-                                     SellTransactionFee = record.Value.SellFee
+                                     Name = record.Value.Name, 
+                                     AllowsPartialShares = record.Value.PartialShares, 
+                                     FixedPrice = record.Value.FixedPrice, 
                                  };
 
                     if (record.Value.PriceHistory != null)
@@ -146,13 +140,13 @@ namespace Ipa.Model.Reader
                         {
                             var sp = new FinSecQuote
                                          {
-                                             TradingDayDate = spr.Date,
-                                             OpenPrice = spr.Open,
-                                             HighPrice = spr.High,
-                                             LowPrice = spr.Low,
-                                             ClosePrice = spr.Close,
-                                             Volume = spr.Volume,
-                                             AdjustedClose = spr.AdjClose,
+                                             TradingDayDate = spr.Date, 
+                                             OpenPrice = spr.Open, 
+                                             HighPrice = spr.High, 
+                                             LowPrice = spr.Low, 
+                                             ClosePrice = spr.Close, 
+                                             Volume = spr.Volume, 
+                                             AdjustedClose = spr.AdjClose, 
                                          };
                             sm.Quotes.Add(sp);
                         }
@@ -164,7 +158,7 @@ namespace Ipa.Model.Reader
                         {
                             var d = new FinSecDistribution
                                         {
-                                            TransactionDate = dhr.Date,
+                                            TransactionDate = dhr.Date, 
                                             Amount = dhr.Dividends
                                         };
                             sm.Distributions.Add(d);
