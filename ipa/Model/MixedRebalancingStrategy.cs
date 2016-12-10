@@ -65,7 +65,7 @@ namespace Ipa.Model
                     // so the portfolio needs to be rebalanced.
                     if (currentAllocation > 0)
                     {
-                        Log.InfoFormat("ScheduledStop required: non-model assets present.");
+                        Log.TraceFormat("ScheduledStop required: non-model assets present.");
                         return true;
                     }
 
@@ -77,7 +77,7 @@ namespace Ipa.Model
 
                 if (Math.Abs(drift) > this.Threshold)
                 {
-                    Log.InfoFormat(
+                    Log.TraceFormat(
                         "ScheduledStop required: Asset {0} is {1:P} above target allocation {2:P} with {3:P} threshold.",
                         modelAsset.Security.Ticker,
                         drift,
@@ -92,7 +92,7 @@ namespace Ipa.Model
 
         public List<TradePlanItem> Rebalance(ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
-            Log.InfoFormat("ScheduledStop '{0}' using '{1}'", portfolio.Name, modelPortfolio.Name);
+            Log.TraceFormat("ScheduledStop '{0}' using '{1}'", portfolio.Name, modelPortfolio.Name);
 
             var tradesList = new List<TradePlanItem>();
 
@@ -118,30 +118,30 @@ namespace Ipa.Model
 
             // Make combined list of current holdings and model assets.
             var assets = modelPortfolio.Assets.Select(o => new Asset(o.Security)).ToDictionary(o => o.Security.Ticker);
-            Log.InfoFormat("Model assets:");
+            Log.TraceFormat("Model assets:");
             foreach (var a in assets)
             {
-                Log.InfoFormat("    {0}", a.Value.Security.Ticker);
+                Log.TraceFormat("    {0}", a.Value.Security.Ticker);
             }
 
             var holdings = portfolio.Holdings.ToDictionary(o => o.Security.Ticker);
-            Log.InfoFormat("Holdings:");
+            Log.TraceFormat("Holdings:");
             foreach (var h in holdings)
             {
-                Log.InfoFormat("    {0}", h.Value.Security.Ticker);
+                Log.TraceFormat("    {0}", h.Value.Security.Ticker);
                 assets[h.Key] = h.Value;
             }
 
             foreach (var asset in assets.Values)
             {
-                Log.InfoFormat("Calculating {0}", asset.Security.Ticker);
+                Log.TraceFormat("Calculating {0}", asset.Security.Ticker);
 
                 var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 var targetAllocation = modelAsset == null ? 0 : modelAsset.Allocation;
                 var currentAllocation = asset.MarketValue / portfolio.MarketValue;
                 var drift = currentAllocation - targetAllocation;
 
-                Log.InfoFormat(
+                Log.TraceFormat(
                     "        current: {0:P}, target: {1:P}, drift: {2:P}",
                     currentAllocation,
                     targetAllocation,
@@ -150,7 +150,7 @@ namespace Ipa.Model
                 // Check if asset allocation deviated and skip if still within tolerance.
                 if (Math.Abs(drift) < this.Threshold)
                 {
-                    Log.InfoFormat("        Below {0:P} threshold, skipping", this.Threshold);
+                    Log.TraceFormat("        Below {0:P} threshold, skipping", this.Threshold);
                     continue;
                 }
 
@@ -177,7 +177,7 @@ namespace Ipa.Model
                     }
                 }
 
-                Log.InfoFormat("        Excess {0}", excess);
+                Log.TraceFormat("        Excess {0}", excess);
 
                 // Check if there is at least one unit to buy or sell.
                 // If amount is too small, skip it.
@@ -185,7 +185,7 @@ namespace Ipa.Model
                 // This could be tricky as if the last price exceeds few cents, that really cannot be used
                 if (Math.Abs(excess) < asset.LastPrice)
                 {
-                    Log.InfoFormat("        Excess is less than last price, skipping");
+                    Log.TraceFormat("        Excess is less than last price, skipping");
                     continue;
                 }
 

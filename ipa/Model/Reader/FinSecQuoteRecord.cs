@@ -1,9 +1,9 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="SecurityPriceRecord.cs" company="Alex Kozlov">
+// <copyright file="FinSecQuoteRecord.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the SecurityPriceRecord type.
+//   Defines the FinSecQuoteRecord type.
 // </summary>
 // --------------------------------------------------------------------------------
 
@@ -13,11 +13,11 @@ namespace Ipa.Model.Reader
 
     using CsvHelper.Configuration;
 
-    internal class SecurityPriceRecord : CsvClassMap<SecurityPriceRecord>
+    internal class FinSecQuoteRecord : CsvClassMap<FinSecQuoteRecord>
     {
         #region Constructors and Destructors
 
-        public SecurityPriceRecord()
+        public FinSecQuoteRecord()
         {
             this.Map(p => p.Date);
             this.Map(p => p.Open);

@@ -65,9 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\ISchedule.cs" />
+    <Compile Include="Model\PortfolioStats.cs" />
     <Compile Include="Model\QuaterlySchedule.cs" />
-    <Compile Include="Model\Reader\SecurityDividendRecord.cs" />
+    <Compile Include="Model\IpaDb.cs" />
+    <Compile Include="Model\Reader\FinSecDistributionRecord.cs" />
     <Compile Include="Model\RebalancingCheckResult.cs" />
+    <Compile Include="Model\SemiannualSchedule.cs" />
     <Compile Include="Model\TradeOrder.cs" />
     <Compile Include="ObjectDumper.cs" />
     <Compile Include="Model\Reader\DataReader.cs" />
@@ -78,12 +81,12 @@
     <Compile Include="Model\ModelPortfolio.cs" />
     <Compile Include="Model\Asset.cs" />
     <Compile Include="Model\Portfolio.cs" />
-    <Compile Include="Model\Reader\ModelPortfolioAssetRecord.cs" />
+    <Compile Include="Model\Reader\ModelPortfolioComponentRecord.cs" />
     <Compile Include="Model\Reader\ModelPortfolioRecord.cs" />
-    <Compile Include="Model\Reader\PortfolioAssetRecord.cs" />
+    <Compile Include="Model\Reader\AssetRecord.cs" />
     <Compile Include="Model\Reader\PortfolioRecord.cs" />
-    <Compile Include="Model\Reader\SecurityPriceRecord.cs" />
-    <Compile Include="Model\Reader\SecurityRecord.cs" />
+    <Compile Include="Model\Reader\FinSecQuoteRecord.cs" />
+    <Compile Include="Model\Reader\FinSecRecord.cs" />
     <Compile Include="Model\Reader\SimulationParametersRecord.cs" />
     <Compile Include="Model\FinSecDistribution.cs" />
     <Compile Include="Model\FinSec.cs" />
@@ -93,6 +96,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatRecord.cs" />
     <None Include="config\CASH_10k_Holdings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

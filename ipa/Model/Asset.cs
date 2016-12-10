@@ -6,6 +6,7 @@
 //   Defines the PortfolioAssetModel type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
     using System.Diagnostics;
@@ -39,10 +40,10 @@ namespace Ipa.Model
         {
             this.BookValue = other.BookValue;
             this.DividendsPaid = other.DividendsPaid;
-            this.LastPrice = other.LastPrice;
+            this.lastPrice = other.LastPrice;
             this.ManagementCost = other.ManagementCost;
             this.Security = other.Security;
-            this.Units = other.Units;
+            this.units = other.Units;
         }
 
         #endregion
@@ -134,9 +135,9 @@ namespace Ipa.Model
         }
 
         /// <summary>
-        /// Gets or sets security of the asset.
+        /// Gets security of the asset.
         /// </summary>
-        public FinSec Security { get; set; }
+        public FinSec Security { get; private set; }
 
         /// <summary>
         /// Gets or sets number of units held in portfolio.

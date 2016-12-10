@@ -6,6 +6,7 @@
 //   Defines the PortfolioRecord type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model.Reader
 {
     using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Ipa.Model.Reader
 
         #region Public Properties
 
-        public IDictionary<string, PortfolioAssetRecord> Holdings { get; set; }
+        public IDictionary<string, AssetRecord> Holdings { get; set; }
 
         public string Name { get; set; }
 

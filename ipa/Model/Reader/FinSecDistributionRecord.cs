@@ -1,9 +1,9 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="SecurityDividendRecord.cs" company="Alex Kozlov">
+// <copyright file="FinSecDistributionRecord.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the SecurityDividendRecord type.
+//   Defines the FinSecDistributionRecord type.
 // </summary>
 // --------------------------------------------------------------------------------
 
@@ -13,11 +13,11 @@ namespace Ipa.Model.Reader
 
     using CsvHelper.Configuration;
 
-    internal class SecurityDividendRecord : CsvClassMap<SecurityDividendRecord>
+    internal class FinSecDistributionRecord : CsvClassMap<FinSecDistributionRecord>
     {
         #region Constructors and Destructors
 
-        public SecurityDividendRecord()
+        public FinSecDistributionRecord()
         {
             this.Map(p => p.Date);
             this.Map(p => p.Dividends);

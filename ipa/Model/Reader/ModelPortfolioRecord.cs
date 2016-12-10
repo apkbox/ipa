@@ -26,7 +26,7 @@ namespace Ipa.Model.Reader
 
         #region Public Properties
 
-        public IDictionary<string, ModelPortfolioAssetRecord> Assets { get; set; }
+        public IDictionary<string, ModelPortfolioComponentRecord> Assets { get; set; }
 
         public string ModelPortfolioId { get; set; }
 

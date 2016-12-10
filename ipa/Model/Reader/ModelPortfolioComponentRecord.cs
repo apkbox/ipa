@@ -1,20 +1,21 @@
 // --------------------------------------------------------------------------------
-// <copyright file="ModelPortfolioAssetRecord.cs" company="Alex Kozlov">
+// <copyright file="ModelPortfolioComponentRecord.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the ModelPortfolioAssetRecord type.
+//   Defines the ModelPortfolioComponentRecord type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model.Reader
 {
     using CsvHelper.Configuration;
 
-    internal class ModelPortfolioAssetRecord : CsvClassMap<ModelPortfolioAssetRecord>
+    internal class ModelPortfolioComponentRecord : CsvClassMap<ModelPortfolioComponentRecord>
     {
         #region Constructors and Destructors
 
-        public ModelPortfolioAssetRecord()
+        public ModelPortfolioComponentRecord()
         {
             this.Map(p => p.Ticker);
             this.Map(p => p.Allocation);

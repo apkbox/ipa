@@ -25,7 +25,6 @@ namespace Ipa.Model
         public Portfolio(Portfolio other)
         {
             this.Holdings = other.Holdings.Select(o => new Asset(o)).ToList();
-            this.LastRebalancingDate = other.LastRebalancingDate;
             this.MarketValue = other.MarketValue;
             this.Name = other.Name;
             this.RebalancingStrategy = other.RebalancingStrategy;
@@ -45,8 +44,6 @@ namespace Ipa.Model
         }
 
         public IList<Asset> Holdings { get; private set; }
-
-        public DateTime LastRebalancingDate { get; set; }
 
         /// <summary>
         /// Gets or sets current portfolio market value.

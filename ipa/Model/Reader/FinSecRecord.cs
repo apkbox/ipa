@@ -1,22 +1,23 @@
 ﻿// --------------------------------------------------------------------------------
-// <copyright file="SecurityRecord.cs" company="Alex Kozlov">
+// <copyright file="FinSecRecord.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the SecurityRecord type.
+//   Defines the FinSecRecord type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model.Reader
 {
     using System.Collections.Generic;
 
     using CsvHelper.Configuration;
 
-    internal class SecurityRecord : CsvClassMap<SecurityRecord>
+    internal class FinSecRecord : CsvClassMap<FinSecRecord>
     {
         #region Constructors and Destructors
 
-        public SecurityRecord()
+        public FinSecRecord()
         {
             this.Map(p => p.Ticker);
             this.Map(p => p.Name);
@@ -29,7 +30,7 @@ namespace Ipa.Model.Reader
 
         #region Public Properties
 
-        public IList<SecurityDividendRecord> DividendHistory { get; set; }
+        public IList<FinSecDistributionRecord> DividendHistory { get; set; }
 
         public decimal? FixedPrice { get; set; }
 
@@ -39,7 +40,7 @@ namespace Ipa.Model.Reader
 
         public bool PartialShares { get; set; }
 
-        public IList<SecurityPriceRecord> PriceHistory { get; set; }
+        public IList<FinSecQuoteRecord> PriceHistory { get; set; }
 
         public string Ticker { get; set; }
 

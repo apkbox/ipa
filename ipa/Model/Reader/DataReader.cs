@@ -6,6 +6,7 @@
 //   Defines the DataReader type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model.Reader
 {
     using System;
@@ -19,8 +20,7 @@ namespace Ipa.Model.Reader
     {
         #region Fields
 
-        private readonly Dictionary<string, ModelPortfolio> modelPortfolios =
-            new Dictionary<string, ModelPortfolio>();
+        private readonly Dictionary<string, ModelPortfolio> modelPortfolios = new Dictionary<string, ModelPortfolio>();
 
         private readonly IDictionary<string, Portfolio> portfolios = new Dictionary<string, Portfolio>();
 
@@ -32,34 +32,33 @@ namespace Ipa.Model.Reader
 
         private IDictionary<string, PortfolioRecord> portfolioRecords;
 
-        private IDictionary<string, SecurityRecord> securityRecords;
+        private IDictionary<string, FinSecRecord> securityRecords;
 
         private IList<SimulationParametersRecord> simParamsRecords;
 
         #endregion
 
+        #region Constructors and Destructors
+
+        private DataReader()
+        {
+        }
+
+        #endregion
+
         #region Public Methods and Operators
 
-        public IList<SimulationParameters> BuildDb()
+        public static IpaDb LoadDb()
         {
-            this.ReadSimulationParameters();
-
-            foreach (var spr in this.simParamsRecords)
-            {
-                var sp = new SimulationParameters
-                             {
-                                 SimulationId = spr.SimulationId, 
-                                 ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId), 
-                                 InitialPortfolio = this.GetPortfolio(spr.PortfolioId), 
-                                 InceptionDate = spr.InceptionDate, 
-                                 StopDate = spr.StopDate ?? DateTime.Today, 
-                                 ForceInitialRebalancing = spr.ForceInitialRebalancing, 
-                                 SetInitialBookCost = spr.SetInitialBookCost
-                             };
-                this.simulationParameters.Add(sp);
-            }
-
-            return this.simulationParameters;
+            var reader = new DataReader();
+            reader.LoadData();
+            return new IpaDb
+                       {
+                           Securities = reader.securities,
+                           ModelPortfolios = reader.modelPortfolios,
+                           Portfolios = reader.portfolios,
+                           SimulationParameters = reader.simulationParameters,
+                       };
         }
 
         #endregion
@@ -78,7 +77,7 @@ namespace Ipa.Model.Reader
                     {
                         var asset = new ModelPortfolioComponent
                                         {
-                                            Security = this.GetSecurity(ar.Value.Ticker), 
+                                            Security = this.GetSecurity(ar.Value.Ticker),
                                             Allocation = ar.Value.Allocation
                                         };
                         mpm.Assets.Add(asset);
@@ -98,16 +97,12 @@ namespace Ipa.Model.Reader
                 this.ReadPortfolios();
                 foreach (var record in this.portfolioRecords)
                 {
-                    var pm = new Portfolio
-                                 {
-                                     Name = record.Value.Name, 
-                                     TransactionFee = record.Value.TransactionFee
-                                 };
+                    var pm = new Portfolio { Name = record.Value.Name, TransactionFee = record.Value.TransactionFee };
                     foreach (var hr in record.Value.Holdings)
                     {
                         var asset = new Asset(this.GetSecurity(hr.Value.Ticker))
                                         {
-                                            Units = hr.Value.Units, 
+                                            Units = hr.Value.Units,
                                             BookValue = hr.Value.BookCost
                                         };
                         pm.Holdings.Add(asset);
@@ -129,9 +124,11 @@ namespace Ipa.Model.Reader
                 {
                     var sm = new FinSec(record.Value.Ticker, record.Value.IsCurrency)
                                  {
-                                     Name = record.Value.Name, 
-                                     AllowsPartialShares = record.Value.PartialShares, 
-                                     FixedPrice = record.Value.FixedPrice, 
+                                     Name = record.Value.Name,
+                                     AllowsPartialShares =
+                                         record.Value.PartialShares,
+                                     FixedPrice =
+                                         record.Value.FixedPrice,
                                  };
 
                     if (record.Value.PriceHistory != null)
@@ -140,13 +137,13 @@ namespace Ipa.Model.Reader
                         {
                             var sp = new FinSecQuote
                                          {
-                                             TradingDayDate = spr.Date, 
-                                             OpenPrice = spr.Open, 
-                                             HighPrice = spr.High, 
-                                             LowPrice = spr.Low, 
-                                             ClosePrice = spr.Close, 
-                                             Volume = spr.Volume, 
-                                             AdjustedClose = spr.AdjClose, 
+                                             TradingDayDate = spr.Date,
+                                             OpenPrice = spr.Open,
+                                             HighPrice = spr.High,
+                                             LowPrice = spr.Low,
+                                             ClosePrice = spr.Close,
+                                             Volume = spr.Volume,
+                                             AdjustedClose = spr.AdjClose,
                                          };
                             sm.Quotes.Add(sp);
                         }
@@ -156,11 +153,7 @@ namespace Ipa.Model.Reader
                     {
                         foreach (var dhr in record.Value.DividendHistory)
                         {
-                            var d = new FinSecDistribution
-                                        {
-                                            TransactionDate = dhr.Date, 
-                                            Amount = dhr.Dividends
-                                        };
+                            var d = new FinSecDistribution { TransactionDate = dhr.Date, Amount = dhr.Dividends };
                             sm.Distributions.Add(d);
                         }
                     }
@@ -172,14 +165,34 @@ namespace Ipa.Model.Reader
             return this.securities[ticker];
         }
 
-        private IDictionary<string, ModelPortfolioAssetRecord> ReadModelPortfolioAssets(string modelPortfolioId)
+        private void LoadData()
+        {
+            this.ReadSimulationParameters();
+
+            foreach (var spr in this.simParamsRecords)
+            {
+                var sp = new SimulationParameters
+                             {
+                                 SimulationId = spr.SimulationId,
+                                 ModelPortfolio = this.GetModelPortfolio(spr.ModelPortfolioId),
+                                 InitialPortfolio = this.GetPortfolio(spr.PortfolioId),
+                                 InceptionDate = spr.InceptionDate,
+                                 StopDate = spr.StopDate ?? DateTime.Today,
+                                 ForceInitialRebalancing = spr.ForceInitialRebalancing,
+                                 SetInitialBookCost = spr.SetInitialBookCost
+                             };
+                this.simulationParameters.Add(sp);
+            }
+        }
+
+        private IDictionary<string, ModelPortfolioComponentRecord> ReadModelPortfolioAssets(string modelPortfolioId)
         {
             var fileName = string.Format("config/{0}_ModelPortfolioAssets.csv", modelPortfolioId);
             using (var reader = new StreamReader(fileName))
             {
                 var csv = new CsvReader(reader);
-                csv.Configuration.RegisterClassMap<ModelPortfolioAssetRecord>();
-                return csv.GetRecords<ModelPortfolioAssetRecord>().ToDictionary(o => o.Ticker);
+                csv.Configuration.RegisterClassMap<ModelPortfolioComponentRecord>();
+                return csv.GetRecords<ModelPortfolioComponentRecord>().ToDictionary(o => o.Ticker);
             }
         }
 
@@ -199,14 +212,14 @@ namespace Ipa.Model.Reader
             }
         }
 
-        private IDictionary<string, PortfolioAssetRecord> ReadPortfolioHoldings(string portfolioId)
+        private IDictionary<string, AssetRecord> ReadPortfolioHoldings(string portfolioId)
         {
             var fileName = string.Format("config/{0}_Holdings.csv", portfolioId);
             using (var reader = new StreamReader(fileName))
             {
                 var csv = new CsvReader(reader);
-                csv.Configuration.RegisterClassMap<PortfolioAssetRecord>();
-                return csv.GetRecords<PortfolioAssetRecord>().ToDictionary(o => o.Ticker);
+                csv.Configuration.RegisterClassMap<AssetRecord>();
+                return csv.GetRecords<AssetRecord>().ToDictionary(o => o.Ticker);
             }
         }
 
@@ -230,8 +243,8 @@ namespace Ipa.Model.Reader
             using (var reader = new StreamReader(string.Format("config/Securities.csv")))
             {
                 var csv = new CsvReader(reader);
-                csv.Configuration.RegisterClassMap<SecurityRecord>();
-                this.securityRecords = csv.GetRecords<SecurityRecord>().ToDictionary(o => o.Ticker);
+                csv.Configuration.RegisterClassMap<FinSecRecord>();
+                this.securityRecords = csv.GetRecords<FinSecRecord>().ToDictionary(o => o.Ticker);
             }
 
             foreach (var r in this.securityRecords)
@@ -246,23 +259,23 @@ namespace Ipa.Model.Reader
             }
         }
 
-        private IList<SecurityDividendRecord> ReadSecurityDividendHistory(string ticker)
+        private IList<FinSecDistributionRecord> ReadSecurityDividendHistory(string ticker)
         {
             using (var reader = new StreamReader(string.Format("config/quotes/{0}_SecurityDividends.csv", ticker)))
             {
                 var csv = new CsvReader(reader);
-                csv.Configuration.RegisterClassMap<SecurityDividendRecord>();
-                return csv.GetRecords<SecurityDividendRecord>().OrderBy(o => o.Date).ToList();
+                csv.Configuration.RegisterClassMap<FinSecDistributionRecord>();
+                return csv.GetRecords<FinSecDistributionRecord>().OrderBy(o => o.Date).ToList();
             }
         }
 
-        private IList<SecurityPriceRecord> ReadSecurityPriceHistory(string ticker)
+        private IList<FinSecQuoteRecord> ReadSecurityPriceHistory(string ticker)
         {
             using (var reader = new StreamReader(string.Format("config/quotes/{0}_SecurityPrices.csv", ticker)))
             {
                 var csv = new CsvReader(reader);
-                csv.Configuration.RegisterClassMap<SecurityPriceRecord>();
-                return csv.GetRecords<SecurityPriceRecord>().OrderBy(o => o.Date).ToList();
+                csv.Configuration.RegisterClassMap<FinSecQuoteRecord>();
+                return csv.GetRecords<FinSecQuoteRecord>().OrderBy(o => o.Date).ToList();
             }
         }
 

@@ -10,12 +10,18 @@ namespace Ipa
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
 
     using Common.Logging;
 
+    using CsvHelper;
+    using CsvHelper.TypeConversion;
+
     using Ipa.Model;
     using Ipa.Model.Reader;
+
+    using NLog.Fluent;
 
     internal class Program
     {
@@ -67,23 +73,70 @@ namespace Ipa
                                        ? Console.LargestWindowHeight
                                        : DefaultWindowsHeight;
 
-            var reader = new DataReader();
-            var simParams = reader.BuildDb();
+            var db = DataReader.LoadDb();
+            var simParams = db.SimulationParameters;
 
-            const string SimId = "Other";
+            const string SimId = "Garth1_CASH_20k";
+            var p = simParams.First(o => o.SimulationId == SimId);
 
-            // const string SimId = "Lousy";
-            // const string SimId = "Garth1_Ex";
-            // const string SimId = "Garth1_CASH_20k";
-            // const string SimId = "RBC_ETF_CASH_20k";
-            // const string SimId = "XUS_VSB_CASH_20k";
-            var sim = new Simulator(simParams.First(o => o.SimulationId == SimId));
-            while (sim.ResumeSimulation())
+            var initialPortfolio = new Portfolio(p.InitialPortfolio);
+
+            var qstream = new StreamWriter("q.csv");
+            using (var stream = new StreamWriter("InceptionStart.csv"))
             {
-                sim.DefaultScheduleHandler();
-            }
+                var csv = new CsvWriter(stream);
+                csv.Configuration.RegisterClassMap<StatRecord>();
+                csv.WriteHeader<StatRecord>();
 
-            sim.PrintPortfolioStats();
+                var quotes = new CsvWriter(qstream);
+                foreach (var h in p.ModelPortfolio.Assets)
+                {
+                    quotes.WriteField(h.Security.Ticker);
+                }
+                quotes.NextRecord();
+
+                var startDate = p.InceptionDate;
+                var endDate = DateTime.Today.Subtract(TimeSpan.FromDays(30));
+                p.StopDate = endDate;
+                while (startDate < endDate)
+                {
+                    Console.WriteLine("{0:d}", startDate);
+                    p.InceptionDate = startDate;
+                    p.InitialPortfolio = new Portfolio(initialPortfolio);
+
+                    var sim = new Simulator(p);
+                    while (sim.ResumeSimulation())
+                    {
+                        sim.DefaultScheduleHandler();
+                    }
+
+                    sim.PrintPortfolioHoldingsStats();
+                    var stats = sim.CalculatePortfolioStats();
+                    Simulator.PrintPortfolioStats(stats);
+
+                    foreach (var h in p.ModelPortfolio.Assets)
+                    {
+                        var q = h.Security.GetLastQuote(startDate);
+                        var avg = q.AveragePrice;
+                        quotes.WriteField(avg);
+                    }
+
+                    quotes.NextRecord();
+
+                    csv.WriteRecord(new StatRecord
+                                        {
+                                            StartDate = p.InceptionDate,
+                                            TotalReturn = stats.TotalReturn,
+                                            TotalReturnRate = stats.TotalReturnRate,
+                                            AnnualizedReturnRate = stats.AnnualizedReturnRate
+                                        });
+
+                    //stream.Flush();
+                    //qstream.Flush();
+
+                    startDate = startDate.AddDays(10);
+                }
+            }
         }
 
         #endregion
