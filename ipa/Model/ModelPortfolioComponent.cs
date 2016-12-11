@@ -6,6 +6,7 @@
 //   Defines the ModelPortfolioComponent type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa.Model
 {
     public class ModelPortfolioComponent
@@ -13,6 +14,8 @@ namespace Ipa.Model
         #region Public Properties
 
         public decimal Allocation { get; set; }
+
+        public decimal? CashReserve { get; set; }
 
         public FinSec Security { get; set; }
 

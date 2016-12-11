@@ -54,9 +54,19 @@ namespace Ipa.Model
 
         public bool Check(ModelPortfolio modelPortfolio, Portfolio portfolio)
         {
+            var marketValue = portfolio.MarketValue;
+            var cashComponent = modelPortfolio.GetAsset("$CAD");
+            var cashReserve = 0m;
+            if (cashComponent != null)
+            {
+                cashReserve = cashComponent.CashReserve ?? 0;
+            }
+
+            marketValue -= cashReserve;
+
             foreach (var asset in portfolio.Holdings)
             {
-                var currentAllocation = asset.MarketValue / portfolio.MarketValue;
+                var currentAllocation = asset.MarketValue / marketValue;
 
                 var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 if (modelAsset == null)
@@ -97,8 +107,8 @@ namespace Ipa.Model
             var tradesList = new List<TradePlanItem>();
 
             // Important: Note that rebalancing should use current or next available security price 
-            // instead of last in order to be correct.
             {
+                // instead of last in order to be correct.
                 // This is because if rebalancing falls on non-trading days for certain securities, then
                 // the next opportunity to trade for rebalancing lies forward.
                 // On the order side, the rebalancing should generate trades list only that will be executed
@@ -132,17 +142,27 @@ namespace Ipa.Model
                 assets[h.Key] = h.Value;
             }
 
+            var marketValue = portfolio.MarketValue;
+            var cashComponent = modelPortfolio.GetAsset("$CAD");
+            var cashReserve = 0m;
+            if (cashComponent != null)
+            {
+                cashReserve = cashComponent.CashReserve ?? 0;
+            }
+
+            marketValue -= cashReserve;
+
             foreach (var asset in assets.Values)
             {
                 Log.TraceFormat("Calculating {0}", asset.Security.Ticker);
 
                 var modelAsset = modelPortfolio.GetAsset(asset.Security.Ticker);
                 var targetAllocation = modelAsset == null ? 0 : modelAsset.Allocation;
-                var currentAllocation = asset.MarketValue / portfolio.MarketValue;
+                var currentAllocation = asset.MarketValue / marketValue;
                 var drift = currentAllocation - targetAllocation;
 
                 Log.TraceFormat(
-                    "        current: {0:P}, target: {1:P}, drift: {2:P}",
+                    "    current: {0:P}, target: {1:P}, drift: {2:P}",
                     currentAllocation,
                     targetAllocation,
                     drift);
@@ -150,16 +170,26 @@ namespace Ipa.Model
                 // Check if asset allocation deviated and skip if still within tolerance.
                 if (Math.Abs(drift) < this.Threshold)
                 {
-                    Log.TraceFormat("        Below {0:P} threshold, skipping", this.Threshold);
+                    Log.TraceFormat("    {0} is below {1:P} threshold, skipping", asset.Security.Ticker, this.Threshold);
                     continue;
                 }
 
-                var targetValue = portfolio.MarketValue * targetAllocation;
+                var targetValue = marketValue * targetAllocation;
 
                 // excess is positive - sell
                 // excess is negative - buy
                 // excess is zero - ignore
                 var excess = asset.MarketValue - targetValue;
+
+                if (excess > 0 && asset.LastPrice < asset.BookPrice)
+                {
+                    Log.WarnFormat(
+                        "   {0} market price {1:C} is less than book price {2:C}, skipping",
+                        asset.Security.Ticker,
+                        asset.LastPrice,
+                        asset.BookPrice);
+                    continue;
+                }
 
                 // Adjust excess for transaction costs
                 if (excess > 0)

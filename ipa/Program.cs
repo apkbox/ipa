@@ -42,13 +42,13 @@ namespace Ipa
 
             if (Debugger.IsAttached)
             {
-                new Program().Run();
+                new Program().Run(args);
             }
             else
             {
                 try
                 {
-                    new Program().Run();
+                    new Program().Run(args);
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +62,64 @@ namespace Ipa
             // Console.ReadKey();
         }
 
-        private void Run()
+        private void Run(string[] args)
+        {
+            if (args.Length < 1)
+            {
+                return;
+            }
+
+            Console.BufferWidth = 140;
+            Console.BufferHeight = 3000;
+            Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth
+                                      ? Console.LargestWindowWidth
+                                      : DefaultWindowsWidth;
+            Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight
+                                       ? Console.LargestWindowHeight
+                                       : DefaultWindowsHeight;
+
+            var db = DataReader.LoadDb();
+            var simParams = db.SimulationParameters;
+
+            string simId = args[0];
+            var p = simParams.First(o => o.SimulationId == simId);
+
+            var newFile = !File.Exists("Stats.csv");
+
+            using (var stream = new StreamWriter("Stats.csv", true))
+            {
+                var csv = new CsvWriter(stream);
+                csv.Configuration.RegisterClassMap<StatRecord>();
+                if (newFile)
+                {
+                    csv.WriteHeader<StatRecord>();
+                }
+
+                Console.WriteLine("{0:d}", p.InceptionDate);
+
+                var sim = new Simulator(p);
+                while (sim.ResumeSimulation())
+                {
+                    sim.DefaultScheduleHandler();
+                }
+
+                sim.PrintPortfolioHoldingsStats();
+                var stats = sim.CalculatePortfolioStats();
+                Simulator.PrintPortfolioStats(stats);
+
+                csv.WriteRecord(
+                    new StatRecord
+                        {
+                            SimulationId = simId,
+                            StartDate = p.InceptionDate,
+                            TotalReturn = stats.TotalReturn,
+                            TotalReturnRate = stats.TotalReturnRate,
+                            AnnualizedReturnRate = stats.AnnualizedReturnRate
+                        });
+            }
+        }
+
+        private void RunThrough()
         {
             Console.BufferWidth = 140;
             Console.BufferHeight = 3000;
@@ -93,6 +150,7 @@ namespace Ipa
                 {
                     quotes.WriteField(h.Security.Ticker);
                 }
+
                 quotes.NextRecord();
 
                 var startDate = p.InceptionDate;

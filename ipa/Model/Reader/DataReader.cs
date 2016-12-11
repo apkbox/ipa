@@ -78,7 +78,8 @@ namespace Ipa.Model.Reader
                         var asset = new ModelPortfolioComponent
                                         {
                                             Security = this.GetSecurity(ar.Value.Ticker),
-                                            Allocation = ar.Value.Allocation
+                                            Allocation = ar.Value.Allocation,
+                                            CashReserve = ar.Value.CashReserve
                                         };
                         mpm.Assets.Add(asset);
                     }

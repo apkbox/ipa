@@ -19,6 +19,7 @@ namespace Ipa.Model.Reader
         {
             this.Map(p => p.Ticker);
             this.Map(p => p.Allocation);
+            this.Map(p => p.CashReserve);
         }
 
         #endregion
@@ -26,6 +27,8 @@ namespace Ipa.Model.Reader
         #region Public Properties
 
         public decimal Allocation { get; set; }
+
+        public decimal? CashReserve { get; set; }
 
         public string Ticker { get; set; }
 

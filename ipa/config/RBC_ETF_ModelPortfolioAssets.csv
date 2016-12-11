@@ -1,4 +1,4 @@
-﻿Ticker,Allocation
+﻿Ticker,Allocation,CashReserve
 CMR.TO,0.03
 VAB.TO,0.04
 VSB.TO,0.09
@@ -15,4 +15,4 @@ VGG.TO,0.07
 XEF.TO,0.075
 RID.TO,0.07
 XEC.TO,0.045
-$CAD,0
+$CAD,0,300

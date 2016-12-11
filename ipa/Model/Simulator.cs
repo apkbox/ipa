@@ -255,7 +255,7 @@ namespace Ipa.Model
 
                 if (cashAsset.BookValue < 0)
                 {
-                    Log.Fatal("Negative cash after executing trade order.");
+                    Log.FatalFormat("Negative cash ({0:C}) after executing trade order.", cashAsset.BookPrice);
                     Debug.Fail("Negative cash after executing trade order.");
                 }
 
