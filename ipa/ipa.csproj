@@ -65,8 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\ISchedule.cs" />
+    <Compile Include="Model\MonthlySchedule.cs" />
     <Compile Include="Model\PortfolioStats.cs" />
-    <Compile Include="Model\QuaterlySchedule.cs" />
+    <Compile Include="Model\QuarterlySchedule.cs" />
     <Compile Include="Model\IpaDb.cs" />
     <Compile Include="Model\Reader\FinSecDistributionRecord.cs" />
     <Compile Include="Model\RebalancingCheckResult.cs" />

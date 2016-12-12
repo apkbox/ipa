@@ -1,9 +1,9 @@
 // --------------------------------------------------------------------------------
-// <copyright file="QuaterlySchedule.cs" company="Alex Kozlov">
+// <copyright file="QuarterlySchedule.cs" company="Alex Kozlov">
 //   Copyright (c) Alex Kozlov. All rights reserved.
 // </copyright>
 // <summary>
-//   Defines the QuaterlySchedule type.
+//   Defines the QuarterlySchedule type.
 // </summary>
 // --------------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace Ipa.Model
 {
     using System;
 
-    public class QuaterlySchedule : ISchedule
+    public class QuarterlySchedule : ISchedule
     {
         #region Fields
 

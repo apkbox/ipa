@@ -26,7 +26,8 @@ namespace Ipa.Model
 
         #region Fields
 
-        private readonly ISchedule schedule = new QuaterlySchedule();
+        // private readonly ISchedule schedule = new MonthlySchedule();
+        private readonly ISchedule schedule = new QuarterlySchedule();
         //private readonly ISchedule schedule = new SemiannualSchedule();
 
         private bool isResumed;
@@ -255,7 +256,7 @@ namespace Ipa.Model
 
                 if (cashAsset.BookValue < 0)
                 {
-                    Log.FatalFormat("Negative cash ({0:C}) after executing trade order.", cashAsset.BookPrice);
+                    Log.FatalFormat("Negative cash ({0:C}) after executing trade order.", cashAsset.BookValue);
                     Debug.Fail("Negative cash after executing trade order.");
                 }
 

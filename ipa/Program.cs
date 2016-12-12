@@ -6,6 +6,7 @@
 //   Defines the Program type.
 // </summary>
 // --------------------------------------------------------------------------------
+
 namespace Ipa
 {
     using System;
@@ -16,12 +17,9 @@ namespace Ipa
     using Common.Logging;
 
     using CsvHelper;
-    using CsvHelper.TypeConversion;
 
     using Ipa.Model;
     using Ipa.Model.Reader;
-
-    using NLog.Fluent;
 
     internal class Program
     {
@@ -33,12 +31,39 @@ namespace Ipa
 
         #endregion
 
+        #region Static Fields
+
+        private static int bheight;
+
+        private static int bwidth;
+
+        private static int wheight;
+
+        private static int wwidth;
+
+        #endregion
+
         #region Methods
+
+        private static void AdjustConsoleWindow()
+        {
+            Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth
+                                      ? Console.LargestWindowWidth
+                                      : DefaultWindowsWidth;
+            Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight
+                                       ? Console.LargestWindowHeight
+                                       : DefaultWindowsHeight;
+            Console.BufferWidth = Math.Max(Console.WindowWidth, DefaultWindowsWidth);
+            Console.BufferHeight = Math.Max(Console.WindowHeight, 3000);
+        }
 
         private static void Main(string[] args)
         {
             var logger = LogManager.GetLogger<Program>();
             logger.Info("Started");
+
+            SaveConsoleParameters();
+            AdjustConsoleWindow();
 
             if (Debugger.IsAttached)
             {
@@ -60,6 +85,42 @@ namespace Ipa
             logger.Info("Exiting");
 
             // Console.ReadKey();
+            RestoreConsoleParameters();
+        }
+
+        private static void RestoreConsoleParameters()
+        {
+            Console.SetWindowPosition(0, 0);
+
+            if (wwidth > Console.BufferWidth)
+            {
+                Console.BufferWidth = bwidth;
+                Console.WindowWidth = wwidth;
+            }
+            else
+            {
+                Console.WindowWidth = wwidth;
+                Console.BufferWidth = bwidth;
+            }
+
+            if (wheight > Console.BufferHeight)
+            {
+                Console.BufferHeight = bheight;
+                Console.WindowHeight = wheight;
+            }
+            else
+            {
+                Console.WindowHeight = wheight;
+                Console.BufferHeight = bheight;
+            }
+        }
+
+        private static void SaveConsoleParameters()
+        {
+            wwidth = Console.WindowWidth;
+            wheight = Console.WindowHeight;
+            bwidth = Console.BufferWidth;
+            bheight = Console.BufferHeight;
         }
 
         private void Run(string[] args)
@@ -68,15 +129,6 @@ namespace Ipa
             {
                 return;
             }
-
-            Console.BufferWidth = 140;
-            Console.BufferHeight = 3000;
-            Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth
-                                      ? Console.LargestWindowWidth
-                                      : DefaultWindowsWidth;
-            Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight
-                                       ? Console.LargestWindowHeight
-                                       : DefaultWindowsHeight;
 
             var db = DataReader.LoadDb();
             var simParams = db.SimulationParameters;
@@ -121,15 +173,6 @@ namespace Ipa
 
         private void RunThrough()
         {
-            Console.BufferWidth = 140;
-            Console.BufferHeight = 3000;
-            Console.WindowWidth = Console.LargestWindowWidth < DefaultWindowsWidth
-                                      ? Console.LargestWindowWidth
-                                      : DefaultWindowsWidth;
-            Console.WindowHeight = Console.LargestWindowHeight < DefaultWindowsHeight
-                                       ? Console.LargestWindowHeight
-                                       : DefaultWindowsHeight;
-
             var db = DataReader.LoadDb();
             var simParams = db.SimulationParameters;
 
@@ -181,17 +224,17 @@ namespace Ipa
 
                     quotes.NextRecord();
 
-                    csv.WriteRecord(new StatRecord
-                                        {
-                                            StartDate = p.InceptionDate,
-                                            TotalReturn = stats.TotalReturn,
-                                            TotalReturnRate = stats.TotalReturnRate,
-                                            AnnualizedReturnRate = stats.AnnualizedReturnRate
-                                        });
+                    csv.WriteRecord(
+                        new StatRecord
+                            {
+                                StartDate = p.InceptionDate,
+                                TotalReturn = stats.TotalReturn,
+                                TotalReturnRate = stats.TotalReturnRate,
+                                AnnualizedReturnRate = stats.AnnualizedReturnRate
+                            });
 
-                    //stream.Flush();
-                    //qstream.Flush();
-
+                    // stream.Flush();
+                    // qstream.Flush();
                     startDate = startDate.AddDays(10);
                 }
             }
