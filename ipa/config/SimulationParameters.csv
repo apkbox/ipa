@@ -1,6 +1,8 @@
 ﻿SimulationId,ModelPortfolioId,PortfolioId,InceptionDate,StopDate,ForceInitialRebalancing,SetInitialBookCost
 "Garth1_CASH_20k_J1","Garth1","CASH_20k",2015-01-01,,1,0
+"Garth1_no_prefs_CASH_20k_J1","Garth1_no_prefs","CASH_20k",2015-01-01,,1,0
 "Garth1_CASH_20k_M13","Garth1","CASH_20k",2015-03-13,,1,0
+"Garth1_no_prefs_CASH_20k_M13","Garth1_no_prefs","CASH_20k",2015-03-13,,1,0
 "CP_ETF_CASH_20k_J1","CP_ETF","CASH_20k",2015-01-01,,1,0
 "CP_ETF_CASH_20k_M13","CP_ETF","CASH_20k",2015-03-13,,1,0
 "PWL_4060B_CASH_20k_J1","PWL_4060B","CASH_20k",2015-01-01,,1,0
@@ -10,6 +12,7 @@
 "ISHARES_CASH_20k_M13","ISHARES","CASH_20k",2015-03-13,,1,0
 
 "Garth1_CASH_20k_X","Garth1","CASH_20k",2014-08-01,,1,0
+"Garth1_no_prefs_CASH_20k_X","Garth1_no_prefs","CASH_20k",2014-08-01,,1,0
 "CP_ETF_CASH_20k_X","CP_ETF","CASH_20k",2014-08-01,,1,0
 "PWL_4060B_CASH_20k_X","PWL_4060B","CASH_20k",2014-08-01,,1,0
 "PWL_4060S_CASH_20k_X","PWL_4060S","CASH_20k",2014-08-01,,1,0

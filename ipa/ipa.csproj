@@ -112,6 +112,9 @@
     <None Include="config\Garth1_ModelPortfolioAssets.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="config\Garth1_no_prefs_ModelPortfolioAssets.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="config\ISHARES_ModelPortfolioAssets.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
