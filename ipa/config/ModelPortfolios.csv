@@ -1,7 +1,9 @@
 ﻿ModelPortfolioId,Name
 "Garth1","Garth's suggested portfolio"
 "Garth1_no_prefs","Garth's suggested portfolio without preferreds"
-"CP_ETF","Canadian Couch Potato Balanced ETF"
+"CP_ETF","Canadian Couch Potato Balanced ETF (Balanced)"
+"CP_ETF_Ass","Canadian Couch Potato Balanced ETF (Assertive)"
+"CP_ETF_VSB","Canadian Couch Potato Balanced ETF (VSB)"
 "PWL_4060B","PWL Model ETF Portfolio 40/60 (Broad bonds) as of June 30, 2016"
 "PWL_4060S","PWL Model ETF Portfolio 40/60 (Short bonds) as of June 30, 2016"
 "ISHARES","BlackRock's iShares based ETF portfolio"

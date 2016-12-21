@@ -19,6 +19,8 @@ namespace Ipa.Model
 
         public decimal DividendsPaid { get; set; }
 
+        public decimal InitialPortfolioValue { get; set; }
+
         public decimal ManagementExpenses { get; set; }
 
         public decimal MarketValue { get; set; }

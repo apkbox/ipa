@@ -164,6 +164,10 @@ namespace Ipa
                         {
                             SimulationId = simId,
                             StartDate = p.InceptionDate,
+                            InitialValue = stats.InitialPortfolioValue,
+                            MarketValue = stats.MarketValue,
+                            DividendsPaid = stats.DividendsPaid,
+                            ManagementExpenses = stats.ManagementExpenses,
                             TotalReturn = stats.TotalReturn,
                             TotalReturnRate = stats.TotalReturnRate,
                             AnnualizedReturnRate = stats.AnnualizedReturnRate

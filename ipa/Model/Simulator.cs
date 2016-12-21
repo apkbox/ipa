@@ -30,9 +30,11 @@ namespace Ipa.Model
         private readonly ISchedule schedule = new QuarterlySchedule();
         //private readonly ISchedule schedule = new SemiannualSchedule();
 
+        private readonly SimulationParameters simParams;
+
         private bool isResumed;
 
-        private SimulationParameters simParams;
+        private decimal initialPortfolioValue;
 
         #endregion
 
@@ -49,6 +51,8 @@ namespace Ipa.Model
             this.TradingQueue = new List<TradeOrder>();
             this.CurrentDate = parameters.InceptionDate;
             this.Portfolio = parameters.InitialPortfolio;
+
+            this.initialPortfolioValue = parameters.InitialPortfolio.BookValue;
 
             if (parameters.SetInitialBookCost)
             {
@@ -103,14 +107,15 @@ namespace Ipa.Model
             var marketValue = this.Portfolio.Holdings.Sum(o => o.MarketValue);
             var dividendsPaid = this.Portfolio.Holdings.Sum(o => o.DividendsPaid);
             var managementExpenses = this.Portfolio.Holdings.Sum(o => o.ManagementCost);
-            var totalReturn = this.Portfolio.MarketValue - bookCost + dividendsPaid - managementExpenses;
-            var totalReturnRate = totalReturn / bookCost;
+            var totalReturn = this.Portfolio.MarketValue - this.initialPortfolioValue + dividendsPaid - managementExpenses;
+            var totalReturnRate = totalReturn / this.initialPortfolioValue;
             var period = this.CurrentDate.Subtract(this.simParams.InceptionDate);
             var annualizedReturnRate = Math.Pow((double)(1.0m + totalReturnRate), 365.0 / period.TotalDays) - 1.0;
             return new PortfolioStats()
                        {
                            BookCost = bookCost,
                            MarketValue = marketValue,
+                           InitialPortfolioValue = this.initialPortfolioValue,
                            DividendsPaid = dividendsPaid,
                            ManagementExpenses = managementExpenses,
                            TotalReturn = totalReturn,
