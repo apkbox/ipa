@@ -3,6 +3,7 @@ $CAD,"Canadian Dollar",1,0,0.01
 $USD,"U.S. Dollar",1,0,0.01
 BSV,"Vanguard Short-Term Bond ETF",0,0,
 CDZ.TO,"iShares S&P/TSX Canadian Dividend Aristocrats Index ETF",0,0,
+CLF.TO,"iShares 1-5 Yr Laddered Government Bond Index ETF",0,0
 CMR.TO,"iShares Premium Money Market ETF",0,0,
 CPD.TO,"iShares S&P/TSX Canadian Preferred Share Index ETF",0,0,
 IJH,"iShares Core S&P Mid-Cap ETF",0,0,
@@ -11,6 +12,7 @@ RID.TO,"RBC Quant EAFE Dividend Leaders ETF",0,0,
 VAB.TO,"Canadian Aggregate Bond Index ETF",0,0,
 VCN.TO,"FTSE Canada All Cap Index ETF",0,0,
 VCSH,"Vanguard Short-Term Corporate Bond ETF",0,0,
+VE.TO,"Vanguard FTSE Developed Europe All Cap Index ETF",0,0,
 VEE.TO,"Vanguard FTSE Emerging Markets All Cap Index ETF",0,0,
 VGG.TO,"Vanguard U.S. Dividend Appreciation Index ETF",0,0,
 VSB.TO,"Vanguard Canadian Short-Term Bond Index ETF",0,0,
@@ -19,6 +21,7 @@ VUN.TO,"Vanguard U.S. Total Market Index ETF",0,0,
 VXC.TO,"FTSE Global All Cap ex Canada Index ETF",0,0
 XAW.TO,"iShares All Country World ex Canada Index ETF",0,0,
 XBB.TO,"iShares Canadian Universe Bond Index ETF",0,0,
+XCB.TO,"iShares Canadian Corporate Bond Index ETF",0,0,
 XEC.TO,"iShares MSCI Emerging Markets IMI Index ETF",0,0,
 XEF.TO,"iShares MSCI EAFE IMI Index ETF",0,0,
 XHB.TO,"iShares DEX HYBrid Bond Index Fund",0,0,
