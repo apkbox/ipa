@@ -64,40 +64,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\ISchedule.cs" />
-    <Compile Include="Model\MonthlySchedule.cs" />
-    <Compile Include="Model\PortfolioStats.cs" />
-    <Compile Include="Model\QuarterlySchedule.cs" />
-    <Compile Include="Model\IpaDb.cs" />
-    <Compile Include="Model\Reader\FinSecDistributionRecord.cs" />
-    <Compile Include="Model\RebalancingCheckResult.cs" />
-    <Compile Include="Model\SemiannualSchedule.cs" />
-    <Compile Include="Model\TradeOrder.cs" />
-    <Compile Include="ObjectDumper.cs" />
-    <Compile Include="Model\Reader\DataReader.cs" />
-    <Compile Include="Model\Simulator.cs" />
-    <Compile Include="Model\IRebalancingStrategy.cs" />
-    <Compile Include="Model\MixedRebalancingStrategy.cs" />
-    <Compile Include="Model\ModelPortfolioComponent.cs" />
-    <Compile Include="Model\ModelPortfolio.cs" />
-    <Compile Include="Model\Asset.cs" />
-    <Compile Include="Model\Portfolio.cs" />
-    <Compile Include="Model\Reader\ModelPortfolioComponentRecord.cs" />
-    <Compile Include="Model\Reader\ModelPortfolioRecord.cs" />
-    <Compile Include="Model\Reader\AssetRecord.cs" />
-    <Compile Include="Model\Reader\PortfolioRecord.cs" />
-    <Compile Include="Model\Reader\FinSecQuoteRecord.cs" />
-    <Compile Include="Model\Reader\FinSecRecord.cs" />
-    <Compile Include="Model\Reader\SimulationParametersRecord.cs" />
-    <Compile Include="Model\FinSecDistribution.cs" />
-    <Compile Include="Model\FinSec.cs" />
-    <Compile Include="Model\FinSecQuote.cs" />
-    <Compile Include="Model\SimulationParameters.cs" />
-    <Compile Include="Model\TradePlanItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StatRecord.cs" />
     <None Include="config\CASH_10k_Holdings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -369,6 +338,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SimulationCore\SimulationCore.csproj">
+      <Project>{5ff806cb-6062-4631-baca-fb6bcb0be7d7}</Project>
+      <Name>SimulationCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

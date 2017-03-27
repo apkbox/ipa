@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5FF806CB-6062-4631-BACA-FB6BCB0BE7D7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SimulationCore</RootNamespace>
+    <AssemblyName>SimulationCore</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Common.Logging, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.3.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Model\Asset.cs" />
+    <Compile Include="Model\DailySchedule.cs" />
+    <Compile Include="Model\FinSec.cs" />
+    <Compile Include="Model\FinSecDistribution.cs" />
+    <Compile Include="Model\FinSecQuote.cs" />
+    <Compile Include="Model\IpaDb.cs" />
+    <Compile Include="Model\IRebalancingStrategy.cs" />
+    <Compile Include="Model\ISchedule.cs" />
+    <Compile Include="Model\MixedRebalancingStrategy.cs" />
+    <Compile Include="Model\ModelPortfolio.cs" />
+    <Compile Include="Model\ModelPortfolioComponent.cs" />
+    <Compile Include="Model\MonthlySchedule.cs" />
+    <Compile Include="Model\Portfolio.cs" />
+    <Compile Include="Model\PortfolioStats.cs" />
+    <Compile Include="Model\QuarterlySchedule.cs" />
+    <Compile Include="Model\Reader\AssetRecord.cs" />
+    <Compile Include="Model\Reader\DataReader.cs" />
+    <Compile Include="Model\Reader\FinSecDistributionRecord.cs" />
+    <Compile Include="Model\Reader\FinSecQuoteRecord.cs" />
+    <Compile Include="Model\Reader\FinSecRecord.cs" />
+    <Compile Include="Model\Reader\ModelPortfolioComponentRecord.cs" />
+    <Compile Include="Model\Reader\ModelPortfolioRecord.cs" />
+    <Compile Include="Model\Reader\PortfolioRecord.cs" />
+    <Compile Include="Model\Reader\SimulationParametersRecord.cs" />
+    <Compile Include="Model\RebalancingCheckResult.cs" />
+    <Compile Include="Model\SemiannualSchedule.cs" />
+    <Compile Include="Model\SimulationParameters.cs" />
+    <Compile Include="Model\Simulator.cs" />
+    <Compile Include="Model\TradeOrder.cs" />
+    <Compile Include="Model\TradePlanItem.cs" />
+    <Compile Include="ObjectDumper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatRecord.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

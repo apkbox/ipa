@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------
 
-namespace Ipa
+namespace ipa
 {
     using System;
     using System.Diagnostics;
@@ -18,8 +18,9 @@ namespace Ipa
 
     using CsvHelper;
 
-    using Ipa.Model;
-    using Ipa.Model.Reader;
+    using SimulationCore;
+    using SimulationCore.Model;
+    using SimulationCore.Model.Reader;
 
     internal class Program
     {
@@ -32,6 +33,8 @@ namespace Ipa
         #endregion
 
         #region Static Fields
+
+        private static readonly ILog Log = LogManager.GetLogger<Program>();
 
         private static int bheight;
 
@@ -149,7 +152,15 @@ namespace Ipa
 
                 Console.WriteLine("{0:d}", p.InceptionDate);
 
-                var sim = new Simulator(p);
+                Log.InfoFormat(
+                    "Simulating portfolio '{0}' using model portfolio '{1}'",
+                    p.InitialPortfolio.Name,
+                    p.ModelPortfolio.Name);
+
+                p.InitialPortfolio.ModelPortfolio = p.ModelPortfolio;
+                var sim = new Simulator(p.InitialPortfolio, p.InceptionDate, p.StopDate, p.SetInitialBookCost, p.ForceInitialRebalancing);
+                sim.Schedule = new QuarterlySchedule();
+
                 while (sim.ResumeSimulation())
                 {
                     sim.DefaultScheduleHandler();
@@ -172,75 +183,6 @@ namespace Ipa
                             TotalReturnRate = stats.TotalReturnRate,
                             AnnualizedReturnRate = stats.AnnualizedReturnRate
                         });
-            }
-        }
-
-        private void RunThrough()
-        {
-            var db = DataReader.LoadDb();
-            var simParams = db.SimulationParameters;
-
-            const string SimId = "Garth1_CASH_20k";
-            var p = simParams.First(o => o.SimulationId == SimId);
-
-            var initialPortfolio = new Portfolio(p.InitialPortfolio);
-
-            var qstream = new StreamWriter("q.csv");
-            using (var stream = new StreamWriter("InceptionStart.csv"))
-            {
-                var csv = new CsvWriter(stream);
-                csv.Configuration.RegisterClassMap<StatRecord>();
-                csv.WriteHeader<StatRecord>();
-
-                var quotes = new CsvWriter(qstream);
-                foreach (var h in p.ModelPortfolio.Assets)
-                {
-                    quotes.WriteField(h.Security.Ticker);
-                }
-
-                quotes.NextRecord();
-
-                var startDate = p.InceptionDate;
-                var endDate = DateTime.Today.Subtract(TimeSpan.FromDays(30));
-                p.StopDate = endDate;
-                while (startDate < endDate)
-                {
-                    Console.WriteLine("{0:d}", startDate);
-                    p.InceptionDate = startDate;
-                    p.InitialPortfolio = new Portfolio(initialPortfolio);
-
-                    var sim = new Simulator(p);
-                    while (sim.ResumeSimulation())
-                    {
-                        sim.DefaultScheduleHandler();
-                    }
-
-                    sim.PrintPortfolioHoldingsStats();
-                    var stats = sim.CalculatePortfolioStats();
-                    Simulator.PrintPortfolioStats(stats);
-
-                    foreach (var h in p.ModelPortfolio.Assets)
-                    {
-                        var q = h.Security.GetLastQuote(startDate);
-                        var avg = q.AveragePrice;
-                        quotes.WriteField(avg);
-                    }
-
-                    quotes.NextRecord();
-
-                    csv.WriteRecord(
-                        new StatRecord
-                            {
-                                StartDate = p.InceptionDate,
-                                TotalReturn = stats.TotalReturn,
-                                TotalReturnRate = stats.TotalReturnRate,
-                                AnnualizedReturnRate = stats.AnnualizedReturnRate
-                            });
-
-                    // stream.Flush();
-                    // qstream.Flush();
-                    startDate = startDate.AddDays(10);
-                }
             }
         }
 

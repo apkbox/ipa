@@ -1,9 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ipa", "ipa\ipa.csproj", "{42C80315-6F3B-4356-B914-EA28CE309E06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ipa-gui", "ipa-gui\ipa-gui.csproj", "{8AF2D6F8-1BAA-4339-A61D-00379B2239C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6109A84-468C-4E09-BDA0-1D9BF26D0FE1}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationCore", "SimulationCore\SimulationCore.csproj", "{5FF806CB-6062-4631-BACA-FB6BCB0BE7D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +24,14 @@ Global
 		{42C80315-6F3B-4356-B914-EA28CE309E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42C80315-6F3B-4356-B914-EA28CE309E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42C80315-6F3B-4356-B914-EA28CE309E06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AF2D6F8-1BAA-4339-A61D-00379B2239C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AF2D6F8-1BAA-4339-A61D-00379B2239C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AF2D6F8-1BAA-4339-A61D-00379B2239C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AF2D6F8-1BAA-4339-A61D-00379B2239C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FF806CB-6062-4631-BACA-FB6BCB0BE7D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FF806CB-6062-4631-BACA-FB6BCB0BE7D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FF806CB-6062-4631-BACA-FB6BCB0BE7D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FF806CB-6062-4631-BACA-FB6BCB0BE7D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
